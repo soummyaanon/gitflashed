@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from 'react'
-import { motion } from "framer-motion"
+import { motion, AnimatePresence,Variants } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -14,7 +14,28 @@ interface ActivityData {
   date: Date;
   count: number;
 }
+const containerAnimation: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+}
 
+const itemAnimation: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { 
+      type: "spring", 
+      stiffness: 300, 
+      damping: 24 
+    } 
+  }
+}
 const MotionCard = motion(Card)
 
 function StatsVisualization({ stats }: { stats: GitHubStats }) {
@@ -47,39 +68,10 @@ function StatsVisualization({ stats }: { stats: GitHubStats }) {
       .domain([0, d3.max(data, d => d.count) as number])
       .range([height, 0])
 
-    const gradient = svg.append("defs")
-      .append("linearGradient")
-      .attr("id", "areaGradient")
-      .attr("x1", "0%")
-      .attr("y1", "0%")
-      .attr("x2", "0%")
-      .attr("y2", "100%")
-
-    gradient.append("stop")
-      .attr("offset", "0%")
-      .attr("stop-color", "rgba(16, 185, 129, 0.5)")
-      .attr("stop-opacity", 0.8)
-
-    gradient.append("stop")
-      .attr("offset", "100%")
-      .attr("stop-color", "rgba(16, 185, 129, 0.1)")
-      .attr("stop-opacity", 0.2)
-
-    const area = d3.area<ActivityData>()
-      .x(d => x(d.date))
-      .y0(height)
-      .y1(d => y(d.count))
-      .curve(d3.curveMonotoneX)
-
-    svg.append("path")
-      .datum(data)
-      .attr("fill", "url(#areaGradient)")
-      .attr("d", area)
-
     const line = d3.line<ActivityData>()
       .x(d => x(d.date))
       .y(d => y(d.count))
-      .curve(d3.curveMonotoneX)
+      .curve(d3.curveCatmullRom)
 
     svg.append("path")
       .datum(data)
@@ -87,6 +79,39 @@ function StatsVisualization({ stats }: { stats: GitHubStats }) {
       .attr("stroke", "rgb(16, 185, 129)")
       .attr("stroke-width", 2)
       .attr("d", line)
+
+    const tooltip = d3.select(svgRef.current.parentNode as HTMLElement)
+      .append("div")
+      .attr("class", "tooltip")
+      .style("opacity", 0)
+      .style("position", "absolute")
+      .style("background-color", "rgba(0, 0, 0, 0.7)")
+      .style("color", "white")
+      .style("padding", "5px")
+      .style("border-radius", "5px")
+      .style("pointer-events", "none")
+
+    svg.selectAll(".dot")
+      .data(data)
+      .enter().append("circle")
+      .attr("class", "dot")
+      .attr("cx", d => x(d.date))
+      .attr("cy", d => y(d.count))
+      .attr("r", 4)
+      .attr("fill", "rgb(16, 185, 129)")
+      .on("mouseover", (event, d) => {
+        tooltip.transition()
+          .duration(200)
+          .style("opacity", .9)
+        tooltip.html(`Date: ${d.date.toLocaleDateString()}<br/>Count: ${d.count}`)
+          .style("left", (event.pageX + 5) + "px")
+          .style("top", (event.pageY - 28) + "px")
+      })
+      .on("mouseout", () => {
+        tooltip.transition()
+          .duration(500)
+          .style("opacity", 0)
+      })
 
     svg.append("g")
       .attr("transform", `translate(0,${height})`)
@@ -104,7 +129,7 @@ function StatsVisualization({ stats }: { stats: GitHubStats }) {
   }, [stats])
 
   return (
-    <div className="w-full h-[150px]">
+    <div className="w-full h-[150px] relative">
       <svg ref={svgRef} className="w-full h-full"></svg>
     </div>
   )
@@ -156,7 +181,7 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
   if (!username) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <h1 className="text-2xl font-bold text-center mb-4 text-green-400">GitHub Dashboard</h1>
+        <h1 className="text-3xl font-bold text-center mb-8 text-green-400">GitHub Dashboard</h1>
         <UsernameInput onSubmit={handleUsernameSubmit} />
       </div>
     )
@@ -185,10 +210,9 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
   }
 
   const containerAnimation = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      y: 0,
       transition: {
         staggerChildren: 0.1
       }
@@ -197,11 +221,11 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
 
   const itemAnimation = {
     hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl bg-gradient-to-br from-gray-900 to-green-900 min-h-screen text-white">
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
       <h1 className="text-3xl font-bold text-center mb-8 text-green-400">GitHub Dashboard for {username}</h1>
       <UsernameInput onSubmit={handleUsernameSubmit} />
       
@@ -212,22 +236,48 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
         className="space-y-6"
       >
         {/* User Profile Card */}
-        <MotionCard variants={itemAnimation} className="p-6 bg-gray-800 bg-opacity-50 backdrop-blur-lg rounded-xl border border-green-500/20">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-            <Avatar className="w-24 h-24 border-4 border-green-500">
+        <MotionCard variants={itemAnimation} className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20 overflow-hidden">
+          <motion.div 
+            className="flex flex-col sm:flex-row items-center sm:items-start gap-6"
+            initial={{ x: -50, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 100 }}
+          >
+            <Avatar className="w-24 h-24 border-2 border-green-500">
               <AvatarImage src={githubData.user.avatar_url} alt={githubData.user.name || githubData.user.login} />
               <AvatarFallback>{githubData.user.login.slice(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
             <div className="text-center sm:text-left">
-              <h2 className="text-2xl font-semibold text-green-400">{githubData.user.name || githubData.user.login}</h2>
-              <p className="text-sm text-green-300">@{githubData.user.login}</p>
-              <p className="text-sm mt-2 text-gray-300">{githubData.user.bio || "No bio available"}</p>
+              <motion.h2 
+                className="text-2xl font-semibold text-green-400"
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                {githubData.user.name || githubData.user.login}
+              </motion.h2>
+              <motion.p 
+                className="text-sm text-green-300"
+                initial={{ y: -10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                @{githubData.user.login}
+              </motion.p>
+              <motion.p 
+                className="text-sm mt-2 text-gray-300"
+                initial={{ y: -10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.4 }}
+              >
+                {githubData.user.bio || "No bio available"}
+              </motion.p>
             </div>
-          </div>
+          </motion.div>
         </MotionCard>
 
         {/* Activity Graph Card */}
-        <MotionCard variants={itemAnimation} className="p-6 bg-gray-800 bg-opacity-50 backdrop-blur-lg rounded-xl border border-green-500/20">
+        <MotionCard variants={itemAnimation} className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
           <CardHeader className="p-0">
             <CardTitle className="text-xl mb-4 text-green-400">Activity Over Time</CardTitle>
           </CardHeader>
@@ -237,116 +287,145 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
         </MotionCard>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <MotionCard variants={itemAnimation} className="p-6 bg-gray-800 bg-opacity-50 backdrop-blur-lg rounded-xl border border-green-500/20">
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          variants={containerAnimation}
+          initial="hidden"
+          animate="show"
+        >
+          <MotionCard variants={itemAnimation} className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
             <CardHeader className="p-0">
               <CardTitle className="text-xl mb-4 text-green-400">Repository Stats</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <p className="text-2xl font-bold text-green-300">{githubData.user.public_repos}</p>
-                  <p className="text-xs text-gray-400">Repos</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-green-300">{githubData.user.followers}</p>
-                  <p className="text-xs text-gray-400">Followers</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-green-300">{githubData.user.following}</p>
-                  <p className="text-xs text-gray-400">Following</p>
-                </div>
+                <AnimatedStat label="Repos" value={githubData.user.public_repos} />
+                <AnimatedStat label="Followers" value={githubData.user.followers} />
+                <AnimatedStat label="Following" value={githubData.user.following} />
               </div>
             </CardContent>
           </MotionCard>
 
           {/* Pinned Repos Card */}
-          <MotionCard variants={itemAnimation} className="p-6 bg-gray-800 bg-opacity-50 backdrop-blur-lg rounded-xl border border-green-500/20">
+          <MotionCard variants={itemAnimation} className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
             <CardHeader className="p-0">
               <CardTitle className="text-xl mb-4 text-green-400">Pinned Repos</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               {githubData.pinnedRepos.slice(0, 2).map((repo, index) => (
-                <div key={index} className="mb-4 last:mb-0">
+                <motion.div 
+                  key={index} 
+                  className="mb-4 last:mb-0"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
                   <h3 className="text-sm font-semibold text-green-300">{repo.name}</h3>
                   <p className="text-xs text-gray-400 mb-2 line-clamp-2">
                     {repo.description || "No description available"}
                   </p>
                   <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="text-xs bg-green-700 text-green-100">⭐ {repo.stars}</Badge>
-                    <Badge variant="outline" className="text-xs border-green-500 text-green-300">{repo.language}</Badge>
+                    <Badge variant="secondary" className="text-xs bg-green-700/50 text-green-100">⭐ {repo.stars}</Badge>
+                    <Badge variant="outline" className="text-xs border-green-500/50 text-green-300">{repo.language}</Badge>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </CardContent>
           </MotionCard>
 
           {/* Recent Activity Card */}
-          <MotionCard variants={itemAnimation} className="p-6 bg-gray-800 bg-opacity-50 backdrop-blur-lg rounded-xl border border-green-500/20">
+          <MotionCard variants={itemAnimation} className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
             <CardHeader className="p-0">
               <CardTitle className="text-xl mb-4 text-green-400">Recent Activity</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <ul className="space-y-3">
                 {githubData.recentActivity.slice(0, 3).map((activity, index) => (
-                  <li key={index} className="flex items-center gap-2 text-xs">
-                    <Badge variant="outline" className="text-xs whitespace-nowrap border-green-500 text-green-300">{activity.type}</Badge>
+                  <motion.li 
+                    key={index} 
+                    className="flex items-center gap-2 text-xs"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <Badge variant="outline" className="text-xs whitespace-nowrap border-green-500/50 text-green-300">{activity.type}</Badge>
                     <span className="truncate text-gray-300">{activity.repo}</span>
                     <span className="text-gray-400 ml-auto whitespace-nowrap">{activity.date}</span>
-                  </li>
+                  </motion.li>
                 ))}
               </ul>
             </CardContent>
           </MotionCard>
-        </div>
+        </motion.div>
 
         {/* AI Insights Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <MotionCard variants={itemAnimation} className="p-6 bg-gray-800 bg-opacity-50 backdrop-blur-lg rounded-xl border border-green-500/20">
-            <CardHeader className="p-0">
-              <CardTitle className="text-xl mb-4 text-green-400">Appreciation</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <p className="text-sm text-gray-300">
-                {flashcards[0]?.content || "No appreciation available"}
-              </p>
-            </CardContent>
-          </MotionCard>
-
-          <MotionCard variants={itemAnimation} className="p-6 bg-gray-800 bg-opacity-50 backdrop-blur-lg rounded-xl border border-green-500/20">
-            <CardHeader className="p-0">
-              <CardTitle className="text-xl mb-4 text-green-400">Activity Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <p className="text-sm text-gray-300">
-                {flashcards[1]?.content || "No activity summary available"}
-              </p>
-            </CardContent>
-          </MotionCard>
-
-          <MotionCard variants={itemAnimation} className="p-6 bg-gray-800 bg-opacity-50 backdrop-blur-lg rounded-xl border border-green-500/20">
-            <CardHeader className="p-0">
-              <CardTitle className="text-xl mb-4 text-green-400">Improvement Suggestion</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <p className="text-sm text-gray-300">
-                {flashcards[2]?.content || "No suggestions available"}
-              </p>
-            </CardContent>
-          </MotionCard>
-        </div>
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          variants={containerAnimation}
+          initial="hidden"
+          animate="show"
+        >
+          <AnimatedInsightCard title="Appreciation" content={flashcards[0]?.content} />
+          <AnimatedInsightCard title="Activity Summary" content={flashcards[1]?.content} />
+          <AnimatedInsightCard title="Improvement Suggestion" content={flashcards[2]?.content} />
+        </motion.div>
       </motion.div>
     </div>
   )
 }
 
+function AnimatedStat({ label, value }: { label: string, value: number }) {
+  return (
+    <motion.div
+      initial={{ scale: 0.5, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+    >
+      <motion.p 
+        className="text-2xl font-bold text-green-300"
+        initial={{ y: -20 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      >
+        {value}
+      </motion.p>
+      <p className="text-xs text-gray-400">{label}</p>
+    </motion.div>
+  )
+}
+
+function AnimatedInsightCard({ title, content }: { title: string, content?: string }) {
+  return (
+    <MotionCard 
+      variants={itemAnimation} 
+      className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20"
+      whileHover={{ scale: 1.05 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+    >
+      <CardHeader className="p-0">
+        <CardTitle className="text-xl mb-4 text-green-400">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="p-0">
+        <motion.p 
+          className="text-sm text-gray-300"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          {content || `No ${title.toLowerCase()} available`}
+        </motion.p>
+      </CardContent>
+    </MotionCard>
+  )
+}
+
 function ResponsiveDashboardSkeleton() {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl bg-gradient-to-br from-gray-900 to-green-900 min-h-screen">
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
       <h1 className="text-3xl font-bold text-center mb-8 text-green-400">GitHub Dashboard</h1>
-      <Card className="p-6 bg-gray-800 bg-opacity-50 backdrop-blur-lg rounded-xl border border-green-500/20">
+      <Card className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="col-span-1 lg:col-span-3 p-6 bg-gray-800 bg-opacity-50 backdrop-blur-lg rounded-xl border border-green-500/20">
+          <Card className="col-span-1 lg:col-span-3 p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
               <Skeleton className="w-24 h-24 rounded-full bg-green-700/30" />
               <div className="space-y-3 text-center sm:text-left">
@@ -365,13 +444,13 @@ function ResponsiveDashboardSkeleton() {
             </div>
           </Card>
 
-          <Card className="col-span-1 lg:col-span-3 p-6 bg-gray-800 bg-opacity-50 backdrop-blur-lg rounded-xl border border-green-500/20">
+          <Card className="col-span-1 lg:col-span-3 p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
             <Skeleton className="h-8 w-48 mb-6 bg-green-700/30" />
             <Skeleton className="h-48 w-full bg-green-700/30" />
           </Card>
 
           {[...Array(3)].map((_, i) => (
-            <Card key={i} className="p-6 bg-gray-800 bg-opacity-50 backdrop-blur-lg rounded-xl border border-green-500/20">
+            <Card key={i} className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
               <Skeleton className="h-8 w-48 mb-6 bg-green-700/30" />
               <div className="space-y-3">
                 <Skeleton className="h-4 w-full bg-green-700/30" />
