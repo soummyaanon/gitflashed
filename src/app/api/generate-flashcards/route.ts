@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { fetchGitHubData } from '@/lib/github'
-import { generateFlashcards } from '@/lib/ai'
+import { generateAIInsights } from '@/lib/ai'
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
@@ -11,17 +11,32 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    console.log('Fetching GitHub data for:', username)
     const githubData = await fetchGitHubData(username)
-    console.log('GitHub data fetched successfully')
+    const aiInsights = await generateAIInsights(githubData)
 
-    console.log('Generating flashcards')
-    const flashcards = await generateFlashcards(githubData)
-    console.log('Flashcards generated successfully')
+    // Convert AI insights to flashcards
+    const flashcards = [
+      {
+        id: 'flashcard-1',
+        title: 'Appreciation',
+        content: aiInsights.appreciation,
+      },
+      {
+        id: 'flashcard-2',
+        title: 'Activity Summary',
+        content: aiInsights.activity_summary,
+      },
+      {
+        id: 'flashcard-3',
+        title: 'Improvement Suggestion',
+        content: aiInsights.improvement_suggestion,
+      },
+    ]
 
     return NextResponse.json(flashcards)
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error in generate-flashcards route:', error)
-    return NextResponse.json({ error: 'Failed to generate flashcards', details: (error as Error).message }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+    return NextResponse.json({ error: 'Failed to generate flashcards', details: errorMessage }, { status: 500 })
   }
 }

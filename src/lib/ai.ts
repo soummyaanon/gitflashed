@@ -2,29 +2,39 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!)
 
-export async function generateFlashcards(githubData: any) {
+export async function generateAIInsights(githubData: any) {
   try {
+    console.log('Initializing AI model')
     const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
 
     const prompt = `
-      Based on the following GitHub user data, generate 6 flashcards highlighting key aspects of their GitHub profile and activities. Each flashcard should have a title, a brief description, and some content. The content should include a short compliment or encouragement related to their GitHub journey.
+Based on the following GitHub user data, generate insights including:
+1. An appreciation of their work
+2. A summary of their activity
+3. A suggestion for improvement
 
-      User data:
-      ${JSON.stringify(githubData.user, null, 2)}
+User data:
+${JSON.stringify(githubData.user, null, 2)}
 
-      Top 5 repositories:
-      ${JSON.stringify(githubData.repos, null, 2)}
+Top repository:
+${JSON.stringify(githubData.topRepo, null, 2)}
 
-      Format the response as a JSON array of objects, each representing a flashcard with "title", "description", and "content" fields.
-    `
+Format the response as a JSON object with "appreciation", "activity_summary", and "improvement_suggestion" fields. Do not include any code blocks or markdown formatting.
+`
 
+    console.log('Generating AI content')
     const result = await model.generateContent(prompt)
     const response = await result.response
-    const text = response.text()
+    let text = await response.text()
+    console.log('AI content generated successfully:', text)
     
+    // Remove code fences if any
+    text = text.replace(/```json\s*([\s\S]*?)```/i, '$1').trim()
+    text = text.replace(/```[\s\S]*?```/g, '').trim()
+
     return JSON.parse(text)
   } catch (error) {
-    console.error('Error in generateFlashcards:', error)
+    console.error('Error in generateAIInsights:', error)
     throw error
   }
 }

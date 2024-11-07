@@ -1,28 +1,60 @@
 export interface Flashcard {
-    title: string
-    description: string
-    content: string
-  }
-  
-  export interface GitHubUser {
-    login: string
+  id: string
+  title: string
+  content: string
+}
+
+export interface GitHubUser {
+  login: string
+  name: string
+  avatar_url: string
+  bio: string
+  public_repos: number
+  followers: number
+  following: number
+}
+
+export interface PinnedRepo {
+  name: string
+  description: string
+  stars: number
+  url: string
+  language: string
+}
+
+export interface Activity {
+  type: string
+  repo: {
     name: string
-    bio: string
-    public_repos: number
-    followers: number
-    following: number
-    created_at: string
   }
-  
-  export interface GitHubRepo {
-    name: string
-    description: string
-    stargazers_count: number
-    language: string
-    updated_at: string
-  }
-  
-  export interface GitHubData {
-    user: GitHubUser
-    repos: GitHubRepo[]
-  }
+  created_at: string
+}
+
+export interface GitHubData {
+  user: GitHubUser
+  pinnedRepos: PinnedRepo[]
+  recentActivity: {
+    type: string
+    repo: string
+    date: string
+  }[]
+}
+
+export interface AIInsights {
+  appreciation: string
+  activity_summary: string
+  improvement_suggestion: string
+}
+export interface ActivityData {
+  date: Date;
+  count: number;
+}
+export interface GitHubStats {
+
+  public_repos: number;
+
+  followers: number;
+
+  following: number;
+
+}
