@@ -398,7 +398,7 @@ function AnimatedInsightCard({ title, content }: { title: string, content?: stri
   return (
     <MotionCard 
       variants={itemAnimation} 
-      className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20"
+      className="p-6 bg-gray-800/30 backdrop-blur-sm rounded-xl border border-green-500/20"
       whileHover={{ scale: 1.05 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
