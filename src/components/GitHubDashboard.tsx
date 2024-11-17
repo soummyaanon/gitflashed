@@ -403,7 +403,7 @@ function AnimatedInsightCard({ title, content }: { title: string, content?: stri
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
       <CardHeader className="p-0">
-        <CardTitle className="text-xl mb-4 text-green-400">{title}</CardTitle>
+        <CardTitle className="text-xl mb-4 text-green-800">{title}</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <motion.p 
