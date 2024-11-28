@@ -4,35 +4,39 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!)
 
 export async function generateAIInsights(githubData: any) {
   try {
-    console.log('Initializing AI model')
     const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
 
     const prompt = `
-Based on the following GitHub user data, generate insights including:
-1. An appreciation of their work
-2. A summary of their activity
-3. A suggestion for improvement
+Create a warm, heartfelt message for a fellow developer (about 5-7 sentences total):
 
-User data:
-${JSON.stringify(githubData.user, null, 2)}
+Opening:
+"While others might create GitHub roasting apps, I'm here to celebrate your coding journey! Every line of code tells a story, and yours is one of dedication and passion."
 
-Top repository:
-${JSON.stringify(githubData.topRepo, null, 2)}
+Then add a personal message that:
+1. Appreciates their commitment to open source
+2. Includes one inspiring programming quote
+3. Acknowledges the developer journey
+4. Adds a touch of developer camaraderie
+5. Ends with brief encouragement
 
-Format the response as a JSON object with "appreciation", "activity_summary", and "improvement_suggestion" fields. Do not include any code blocks or markdown formatting.
+Style guidelines:
+- Keep it warm and conversational
+- Focus on the journey, not numbers
+- Make it personal and relatable
+- Include one coding metaphor
+- Keep sentences clear and concise
+
+Format as a natural, flowing paragraph.
+Aim for about 100-150 words total.
 `
 
-    console.log('Generating AI content')
     const result = await model.generateContent(prompt)
     const response = await result.response
-    let text = await response.text()
-    console.log('AI content generated successfully:', text)
-    
-    // Remove code fences if any
-    text = text.replace(/```json\s*([\s\S]*?)```/i, '$1').trim()
-    text = text.replace(/```[\s\S]*?```/g, '').trim()
+    const text = await response.text()
 
-    return JSON.parse(text)
+    return {
+      appreciation: text.trim()
+    }
   } catch (error) {
     console.error('Error in generateAIInsights:', error)
     throw error

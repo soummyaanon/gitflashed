@@ -9,6 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { UsernameInput } from './UserInput'
 import { GitHubData, Flashcard, GitHubStats } from '@/types'
 import * as d3 from 'd3'
+import { Share2, Github, Download } from 'lucide-react'
+import html2canvas from 'html2canvas'
 
 interface ActivityData {
   date: Date;
@@ -45,8 +47,8 @@ function StatsVisualization({ stats }: { stats: GitHubStats }) {
     if (!svgRef.current) return
 
     const margin = { top: 10, right: 10, bottom: 20, left: 30 }
-    const width = 400 - margin.left - margin.right
-    const height = 150 - margin.top - margin.bottom
+    const width = 300 - margin.left - margin.right
+    const height = 100 - margin.top - margin.bottom
 
     d3.select(svgRef.current).selectAll("*").remove()
 
@@ -129,10 +131,44 @@ function StatsVisualization({ stats }: { stats: GitHubStats }) {
   }, [stats])
 
   return (
-    <div className="w-full h-[150px] relative">
+    <div className="w-full h-[100px] relative">
       <svg ref={svgRef} className="w-full h-full"></svg>
     </div>
   )
+}
+
+const downloadAsImage = async () => {
+  const element = document.getElementById('github-profile-card')
+  if (!element) return
+
+  try {
+    const originalBackground = element.style.background
+    element.style.background = '#1a1b1e'
+    
+    const canvas = await html2canvas(element, {
+      backgroundColor: '#1a1b1e',
+      scale: 2,
+      logging: false,
+      useCORS: true,
+      allowTaint: true,
+      onclone: (clonedDoc) => {
+        const clonedElement = clonedDoc.getElementById('github-profile-card')
+        if (clonedElement) {
+          clonedElement.style.transform = 'none'
+        }
+      }
+    })
+
+    element.style.background = originalBackground
+
+    const image = canvas.toDataURL('image/png', 1.0)
+    const link = document.createElement('a')
+    link.download = 'github-profile.png'
+    link.href = image
+    link.click()
+  } catch (err) {
+    console.error('Error generating image:', err)
+  }
 }
 
 export default function ResponsiveMinimalisticGitHubDashboard() {
@@ -225,164 +261,166 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <h1 className="text-3xl font-bold text-center mb-8 text-green-400">GitHub Dashboard for {username}</h1>
-      <UsernameInput onSubmit={handleUsernameSubmit} />
-      
-      <motion.div
-        variants={containerAnimation}
-        initial="hidden"
-        animate="show"
-        className="space-y-6"
-      >
-        {/* User Profile Card */}
-        <MotionCard variants={itemAnimation} className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20 overflow-hidden">
-          <motion.div 
-            className="flex flex-col sm:flex-row items-center sm:items-start gap-6"
-            initial={{ x: -50, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 100 }}
-          >
-            <Avatar className="w-24 h-24 border-2 border-green-500">
-              <AvatarImage src={githubData.user.avatar_url} alt={githubData.user.name || githubData.user.login} />
-              <AvatarFallback>{githubData.user.login.slice(0, 2).toUpperCase()}</AvatarFallback>
-            </Avatar>
-            <div className="text-center sm:text-left">
-              <motion.h2 
-                className="text-2xl font-semibold text-green-400"
-                initial={{ y: -20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-              >
-                {githubData.user.name || githubData.user.login}
-              </motion.h2>
-              <motion.p 
-                className="text-sm text-green-300"
-                initial={{ y: -10, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.3 }}
-              >
-                @{githubData.user.login}
-              </motion.p>
-              <motion.p 
-                className="text-sm mt-2 text-gray-300"
-                initial={{ y: -10, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.4 }}
-              >
-                {githubData.user.bio || "No bio available"}
-              </motion.p>
+    <>
+      {/* Share Buttons */}
+      <div className="container mx-auto px-2 py-1 max-w-3xl flex justify-end gap-1.5">
+        <button
+          onClick={downloadAsImage}
+          className="flex items-center gap-1.5 px-4 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30 transition-all shadow-md hover:shadow-green-500/40 border border-green-400/30"
+        >
+          <Download size={14} />
+          <span className="text-sm">Save</span>
+        </button>
+        <button
+          onClick={() => {
+            window.open(
+              `https://twitter.com/intent/tweet?text=Check out my GitHub stats!&url=${encodeURIComponent(window.location.href)}`,
+              '_blank'
+            );
+          }}
+          className="flex items-center gap-1.5 px-4 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30 transition-all shadow-md hover:shadow-green-500/40 border border-green-400/30"
+        >
+          <Share2 size={14} />
+          <span className="text-sm">Share</span>
+        </button>
+      </div>
+
+      <div className="container mx-auto px-1 max-w-3xl">
+        <div id="github-profile-card" className="relative bg-[#1a1b1e]/90 rounded-lg p-2 border border-green-500/20">
+          {/* Profile Section with Appreciation Card */}
+          <div className="space-y-4">
+            {/* Profile Card */}
+            <MotionCard variants={itemAnimation} className="p-3 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-green-500/20">
+              <motion.div className="flex flex-col sm:flex-row items-center sm:items-start gap-3">
+                <Avatar className="w-14 h-14 border-2 border-green-500">
+                  <AvatarImage src={githubData.user.avatar_url} alt={githubData.user.name || githubData.user.login} />
+                  <AvatarFallback>{githubData.user.login.slice(0, 2).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <div className="text-center sm:text-left flex-grow">
+                  <motion.h2 className="text-lg font-semibold text-green-400">
+                    {githubData.user.name || githubData.user.login}
+                  </motion.h2>
+                  <motion.p className="text-xs text-green-300">@{githubData.user.login}</motion.p>
+                  <motion.p className="text-xs mt-1.5 text-gray-300">
+                    {githubData.user.bio || "No bio available"}
+                  </motion.p>
+                </div>
+                <div className="hidden sm:block">
+                  <Github size={24} className="text-green-400/30" />
+                </div>
+              </motion.div>
+            </MotionCard>
+
+            {/* Fun Appreciation Card */}
+            <div className="mt-4">
+              <AnimatedAppreciationCard content={flashcards[0]?.content} />
             </div>
-          </motion.div>
-        </MotionCard>
+          </div>
 
-        {/* Activity Graph Card */}
-        <MotionCard variants={itemAnimation} className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
-          <CardHeader className="p-0">
-            <CardTitle className="text-xl mb-4 text-green-400">Activity Over Time</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <StatsVisualization stats={githubData.user} />
-          </CardContent>
-        </MotionCard>
-
-        {/* Stats Grid */}
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
-          variants={containerAnimation}
-          initial="hidden"
-          animate="show"
-        >
-          <MotionCard variants={itemAnimation} className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
-            <CardHeader className="p-0">
-              <CardTitle className="text-xl mb-4 text-green-400">Repository Stats</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <AnimatedStat label="Repos" value={githubData.user.public_repos} />
-                <AnimatedStat label="Followers" value={githubData.user.followers} />
-                <AnimatedStat label="Following" value={githubData.user.following} />
-              </div>
-            </CardContent>
-          </MotionCard>
-
-          {/* Pinned Repos Card */}
-          <MotionCard variants={itemAnimation} className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
-            <CardHeader className="p-0">
-              <CardTitle className="text-xl mb-4 text-green-400">Pinned Repos</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              {githubData.pinnedRepos.slice(0, 2).map((repo, index) => (
-                <motion.div 
-                  key={index} 
-                  className="mb-4 last:mb-0"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <h3 className="text-sm font-semibold text-green-300">{repo.name}</h3>
-                  <p className="text-xs text-gray-400 mb-2 line-clamp-2">
-                    {repo.description || "No description available"}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="text-xs bg-green-700/50 text-green-100">⭐ {repo.stars}</Badge>
-                    <Badge variant="outline" className="text-xs border-green-500/50 text-green-300">{repo.language}</Badge>
+          {/* Stats and Activity Section */}
+          <div className="mt-6 space-y-4">
+            {/* Stats Grid */}
+            <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <MotionCard variants={itemAnimation} className="p-3 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-green-500/20">
+                <CardHeader className="p-0">
+                  <CardTitle className="text-base mb-2 text-green-400">Repository Stats</CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="grid grid-cols-3 gap-3 text-center">
+                    <AnimatedStat label="Repos" value={githubData.user.public_repos} />
+                    <AnimatedStat label="Followers" value={githubData.user.followers} />
+                    <AnimatedStat label="Following" value={githubData.user.following} />
                   </div>
-                </motion.div>
-              ))}
-            </CardContent>
-          </MotionCard>
+                </CardContent>
+              </MotionCard>
 
-          {/* Recent Activity Card */}
-          <MotionCard variants={itemAnimation} className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
-            <CardHeader className="p-0">
-              <CardTitle className="text-xl mb-4 text-green-400">Recent Activity</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <ul className="space-y-3">
-                {githubData.recentActivity.slice(0, 3).map((activity, index) => (
-                  <motion.li 
-                    key={index} 
-                    className="flex items-center gap-2 text-xs"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <Badge variant="outline" className="text-xs whitespace-nowrap border-green-500/50 text-green-300">{activity.type}</Badge>
-                    <span className="truncate text-gray-300">{activity.repo}</span>
-                    <span className="text-gray-400 ml-auto whitespace-nowrap">{activity.date}</span>
-                  </motion.li>
-                ))}
-              </ul>
-            </CardContent>
-          </MotionCard>
-        </motion.div>
+              {/* Pinned Repos Card */}
+              <MotionCard variants={itemAnimation} className="p-3 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-green-500/20">
+                <CardHeader className="p-0">
+                  <CardTitle className="text-base mb-2 text-green-400">Pinned Repos</CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  {githubData.pinnedRepos.slice(0, 2).map((repo, index) => (
+                    <motion.div 
+                      key={index} 
+                      className="mb-2 last:mb-0"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <h3 className="text-xs font-semibold text-green-300">{repo.name}</h3>
+                      <p className="text-xs text-gray-400 mb-1 line-clamp-1">
+                        {repo.description || "No description available"}
+                      </p>
+                      <div className="flex items-center gap-1.5">
+                        <Badge variant="secondary" className="text-[10px] bg-green-700/50 text-green-100">⭐ {repo.stars}</Badge>
+                        <Badge variant="outline" className="text-[10px] border-green-500/50 text-green-300">{repo.language}</Badge>
+                      </div>
+                    </motion.div>
+                  ))}
+                </CardContent>
+              </MotionCard>
 
-        {/* AI Insights Cards */}
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
-          variants={containerAnimation}
-          initial="hidden"
-          animate="show"
-        >
-          <AnimatedInsightCard title="Appreciation" content={flashcards[0]?.content} />
-          <AnimatedInsightCard title="Activity Summary" content={flashcards[1]?.content} />
-          <AnimatedInsightCard title="Improvement Suggestion" content={flashcards[2]?.content} />
-        </motion.div>
-      </motion.div>
-    </div>
+              {/* Recent Activity Card */}
+              <MotionCard variants={itemAnimation} className="p-3 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-green-500/20">
+                <CardHeader className="p-0">
+                  <CardTitle className="text-base mb-2 text-green-400">Recent Activity</CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <ul className="space-y-2">
+                    {githubData.recentActivity.slice(0, 3).map((activity, index) => (
+                      <motion.li 
+                        key={index} 
+                        className="flex items-center gap-1.5 text-[10px]"
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                      >
+                        <Badge variant="outline" className="text-[10px] whitespace-nowrap border-green-500/50 text-green-300">{activity.type}</Badge>
+                        <span className="truncate text-gray-300">{activity.repo}</span>
+                        <span className="text-gray-400 ml-auto whitespace-nowrap">{activity.date}</span>
+                      </motion.li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </MotionCard>
+            </motion.div>
+
+            {/* Activity Graph */}
+            <MotionCard variants={itemAnimation} className="p-3 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-green-500/20">
+              <CardHeader className="p-0">
+                <CardTitle className="text-base mb-2 text-green-400">Activity Over Time</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <StatsVisualization stats={githubData.user} />
+                <div className="mt-3 grid grid-cols-3 gap-3 text-center">
+                  <div className="text-[10px]">
+                    <p className="text-green-300 font-semibold">Peak Activity</p>
+                    <span className="text-gray-400">23 commits</span>
+                  </div>
+                  <div className="text-[10px]">
+                    <p className="text-green-300 font-semibold">Average</p>
+                    <span className="text-gray-400">8 commits/day</span>
+                  </div>
+                  <div className="text-[10px]">
+                    <p className="text-green-300 font-semibold">Total</p>
+                    <span className="text-gray-400">142 commits</span>
+                  </div>
+                </div>
+              </CardContent>
+            </MotionCard>
+          </div>
+        </div>
+      </div>
+    </>
   )
 }
 
 function AnimatedStat({ label, value }: { label: string, value: number }) {
   return (
-    <motion.div
-      initial={{ scale: 0.5, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-    >
+    <motion.div>
       <motion.p 
-        className="text-2xl font-bold text-green-300"
+        className="text-lg font-bold text-green-300"
         initial={{ y: -20 }}
         animate={{ y: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -394,28 +432,58 @@ function AnimatedStat({ label, value }: { label: string, value: number }) {
   )
 }
 
-function AnimatedInsightCard({ title, content }: { title: string, content?: string }) {
+function AnimatedAppreciationCard({ content }: { content?: string }) {
   return (
     <MotionCard 
-      variants={itemAnimation} 
-      className="p-6 bg-gray-800/30 backdrop-blur-sm rounded-xl border border-green-500/20"
-      whileHover={{ scale: 1.05 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      className="p-6 bg-gray-800/30 backdrop-blur-sm rounded-xl border border-green-500/20
+                 hover:shadow-lg hover:shadow-green-500/10 transition-all duration-300"
     >
       <CardHeader className="p-0">
-        <CardTitle className="text-xl mb-4 text-green-800">{title}</CardTitle>
+        <CardTitle className="text-xl mb-4 text-green-400 flex items-center gap-2">
+          <span>👋</span>
+          Welcome
+        </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <motion.p 
-          className="text-sm text-gray-300"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          {content || `No ${title.toLowerCase()} available`}
-        </motion.p>
+        <div className="text-md text-gray-300 leading-relaxed">
+          <div className="relative p-4">
+            <p className="font-medium">
+              {content || "Loading your profile..."}
+            </p>
+          </div>
+        </div>
       </CardContent>
     </MotionCard>
+  )
+}
+
+function AppreciationCard({ content }: { content?: string }) {
+  return (
+    <Card className="p-6 bg-gray-800/30 backdrop-blur-sm rounded-xl border border-green-500/20">
+      <CardHeader className="p-0">
+        <CardTitle className="text-lg mb-4 text-green-400 flex items-center gap-2">
+          <Github size={20} className="text-green-400" />
+          A Note of Appreciation
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-0">
+        <div className="prose prose-invert prose-green max-w-none">
+          <div className="space-y-4">
+            <p className="text-md font-medium italic text-green-400/90 border-l-4 border-green-400/30 pl-4">
+              "While others might create GitHub roasting apps, I'm here to celebrate your coding journey!"
+            </p>
+            <p className="text-sm text-gray-300 leading-relaxed font-medium">
+              {content || "Loading your developer story..."}
+            </p>
+          </div>
+        </div>
+      </CardContent>
+      <div className="mt-4 pt-4 border-t border-green-500/10">
+        <p className="text-xs text-green-400/60 italic">
+          "Code is like humor. When you have to explain it, it's bad." - Cory House
+        </p>
+      </div>
+    </Card>
   )
 }
 

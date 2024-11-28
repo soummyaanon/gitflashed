@@ -20,17 +20,7 @@ export async function GET(request: NextRequest) {
         id: 'flashcard-1',
         title: 'Appreciation',
         content: aiInsights.appreciation,
-      },
-      {
-        id: 'flashcard-2',
-        title: 'Activity Summary',
-        content: aiInsights.activity_summary,
-      },
-      {
-        id: 'flashcard-3',
-        title: 'Improvement Suggestion',
-        content: aiInsights.improvement_suggestion,
-      },
+      }
     ]
 
     return NextResponse.json(flashcards)

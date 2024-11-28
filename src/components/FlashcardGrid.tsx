@@ -3,6 +3,7 @@ import { Flashcard } from '@/types'
 
 interface FlashcardGridProps {
   flashcards: Flashcard[]
+  username: string
 }
 
 export default function FlashcardGrid({ flashcards }: FlashcardGridProps) {
