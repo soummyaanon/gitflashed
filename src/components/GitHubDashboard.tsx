@@ -216,22 +216,56 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
 
   if (!username) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <h1 className="text-3xl font-bold text-center mb-8 text-green-400">GitHub Dashboard</h1>
-        <UsernameInput onSubmit={handleUsernameSubmit} />
+      <div className="h-screen overflow-hidden flex items-center justify-center">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                <h1 className="text-2xl sm:text-3xl font-bold text-green-400">Github flatter</h1>
+              </div>
+              <div className="w-11 sm:w-auto">
+                <UsernameInput onSubmit={handleUsernameSubmit} />
+              </div>
+              <img 
+                src="/95c.png" 
+                alt="Chill Guy" 
+                className="w-25 h-25 sm:w-25 sm:h-25 object-contain hidden sm:block"
+              />
+            </div>
+            
+            <p className="text-sm text-green-300/70 italic text-center">
+              Inspired by chill guy meme - keeping it cool while checking your GitHub stats
+            </p>
+          </div>
+        </div>
       </div>
     )
   }
 
   if (loading) {
-    return <ResponsiveDashboardSkeleton />
+    return (
+      <div className="h-screen overflow-hidden flex items-center justify-center">
+        <ResponsiveDashboardSkeleton />
+      </div>
+    )
   }
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="text-red-500 text-center">{error}</div>
-        <UsernameInput onSubmit={handleUsernameSubmit} />
+      <div className="h-screen overflow-hidden flex items-center justify-center">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex items-center gap-3">
+              <div className="text-red-500 text-center">{error}</div>
+              <img 
+                src="/95c.png" 
+                alt="Chill Guy" 
+                className="w-8 h-8 object-contain opacity-50"
+              />
+            </div>
+            <UsernameInput onSubmit={handleUsernameSubmit} />
+          </div>
+        </div>
       </div>
     )
   }
@@ -263,32 +297,40 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
   return (
     <>
       {/* Share Buttons */}
-      <div className="container mx-auto px-2 py-1 max-w-3xl flex justify-end gap-1.5">
-        <button
-          onClick={downloadAsImage}
-          className="flex items-center gap-1.5 px-4 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30 transition-all shadow-md hover:shadow-green-500/40 border border-green-400/30"
-        >
-          <Download size={14} />
-          <span className="text-sm">Save</span>
-        </button>
-        <button
-          onClick={() => {
+      <div className="container mx-auto px-2 py-1 max-w-3xl flex justify-between items-center gap-1.5">
+        {/* Logo and Image on the left */}
+        <div className="flex items-center gap-2">
+          <span className="text-lg font-semibold text-green-400">Github flatter</span>
+          <img 
+            src="/95c.png" 
+            alt="Chill Guy" 
+            className="w-8 h-8 object-contain"
+          />
+        </div>
+        
+        {/* Existing buttons on the right */}
+        <div className="flex gap-1.5">
+          <button onClick={downloadAsImage} className="flex items-center gap-1.5 px-4 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30">
+            <Download size={14} />
+            <span className="text-sm">Save</span>
+          </button>
+          <button onClick={() => {
             window.open(
               `https://twitter.com/intent/tweet?text=Check out my GitHub stats!&url=${encodeURIComponent(window.location.href)}`,
               '_blank'
             );
-          }}
-          className="flex items-center gap-1.5 px-4 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30 transition-all shadow-md hover:shadow-green-500/40 border border-green-400/30"
-        >
-          <Share2 size={14} />
-          <span className="text-sm">Share</span>
-        </button>
+          }} className="flex items-center gap-1.5 px-4 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30">
+            <Share2 size={14} />
+            <span className="text-sm">Share</span>
+          </button>
+        </div>
       </div>
 
       <div className="container mx-auto px-1 max-w-3xl">
         <div id="github-profile-card" className="relative bg-[#1a1b1e]/90 rounded-lg p-2 border border-green-500/20">
           {/* Profile Section with Appreciation Card */}
           <div className="space-y-4">
+            
             {/* Profile Card */}
             <MotionCard variants={itemAnimation} className="p-3 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-green-500/20">
               <motion.div className="flex flex-col sm:flex-row items-center sm:items-start gap-3">
@@ -302,7 +344,7 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
                   </motion.h2>
                   <motion.p className="text-xs text-green-300">@{githubData.user.login}</motion.p>
                   <motion.p className="text-xs mt-1.5 text-gray-300">
-                    {githubData.user.bio || "No bio available"}
+                    {githubData.user.bio || "You don't need a bio to be a great developer!"}
                   </motion.p>
                 </div>
                 <div className="hidden sm:block">
@@ -434,13 +476,14 @@ function AnimatedStat({ label, value }: { label: string, value: number }) {
 
 function AnimatedAppreciationCard({ content }: { content?: string }) {
   return (
-    <MotionCard 
-      className="p-6 bg-gray-800/30 backdrop-blur-sm rounded-xl border border-green-500/20
-                 hover:shadow-lg hover:shadow-green-500/10 transition-all duration-300"
-    >
+    <MotionCard className="p-6 bg-gray-800/30 backdrop-blur-sm rounded-xl border border-green-500/20">
       <CardHeader className="p-0">
         <CardTitle className="text-xl mb-4 text-green-400 flex items-center gap-2">
-          <span>👋</span>
+          <img 
+            src="/95c.png" 
+            alt="Chill Guy" 
+            className="w-6 h-6 object-contain"
+          />
           Welcome
         </CardTitle>
       </CardHeader>
@@ -490,7 +533,14 @@ function AppreciationCard({ content }: { content?: string }) {
 function ResponsiveDashboardSkeleton() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <h1 className="text-3xl font-bold text-center mb-8 text-green-400">GitHub Dashboard</h1>
+      <div className="flex items-center justify-center gap-3 mb-8">
+        <h1 className="text-3xl font-bold text-green-400">GitHub Dashboard</h1>
+        <img 
+          src="/95c.png" 
+          alt="Chill Guy" 
+          className="w-10 h-10 object-contain"
+        />
+      </div>
       <Card className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Card className="col-span-1 lg:col-span-3 p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">

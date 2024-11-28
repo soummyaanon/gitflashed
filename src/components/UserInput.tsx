@@ -22,7 +22,7 @@ export function UsernameInput({ onSubmit }: UsernameInputProps) {
     <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4 mb-8">
       <Input
         type="text"
-        placeholder="Enter GitHub username"
+        placeholder="Your GitHub Handel"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
         className="max-w-xs"
