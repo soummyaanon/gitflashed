@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence,Variants } from "framer-motion"
+import { motion, AnimatePresence, Variants } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -9,13 +9,14 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { UsernameInput } from './UserInput'
 import { GitHubData, Flashcard, GitHubStats } from '@/types'
 import * as d3 from 'd3'
-import { Share2, Github, Download } from 'lucide-react'
+import { Share2, Github, Download, RefreshCw } from 'lucide-react'
 import html2canvas from 'html2canvas'
 
 interface ActivityData {
   date: Date;
   count: number;
 }
+
 const containerAnimation: Variants = {
   hidden: { opacity: 0 },
   show: {
@@ -38,6 +39,7 @@ const itemAnimation: Variants = {
     } 
   }
 }
+
 const MotionCard = motion(Card)
 
 function StatsVisualization({ stats }: { stats: GitHubStats }) {
@@ -177,6 +179,7 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
   const [flashcards, setFlashcards] = useState<Flashcard[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isRegenerating, setIsRegenerating] = useState(false)
 
   useEffect(() => {
     if (username) {
@@ -188,25 +191,37 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
     setLoading(true)
     setError(null)
     try {
-      const [githubResponse, flashcardsResponse] = await Promise.all([
-        fetch(`/api/github-dashboard?username=${username}`),
-        fetch(`/api/generate-flashcards?username=${username}`)
-      ])
-
-      if (!githubResponse.ok || !flashcardsResponse.ok) {
-        throw new Error('Failed to fetch data')
+      // Use the new github-dashboard endpoint
+      const githubResponse = await fetch(`/api/github-dashboard?username=${username}`, {
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+  
+      if (!githubResponse.ok) {
+        const errorData = await githubResponse.json();
+        throw new Error(errorData.error || 'Failed to fetch GitHub data');
       }
-
-      const githubData = await githubResponse.json()
-      const flashcardsData = await flashcardsResponse.json()
-
-      setGithubData(githubData)
-      setFlashcards(flashcardsData)
+  
+      const githubData = await githubResponse.json();
+      setGithubData(githubData);
+  
+      // Only fetch flashcards if the GitHub data was successful
+      const flashcardsResponse = await fetch(`/api/generate-flashcards?username=${username}`);
+      if (!flashcardsResponse.ok) {
+        const errorData = await flashcardsResponse.json();
+        throw new Error(errorData.error || 'Failed to generate flashcards');
+      }
+  
+      const flashcardsData = await flashcardsResponse.json();
+      setFlashcards(flashcardsData);
+  
     } catch (err) {
-      setError('Failed to load dashboard data')
-      console.error(err)
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load dashboard data';
+      setError(errorMessage);
+      console.error('Dashboard Error:', err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -214,25 +229,40 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
     setUsername(newUsername)
   }
 
+  const regenerateFlatter = async () => {
+    if (!username) return
+    setIsRegenerating(true)
+    try {
+      const response = await fetch(`/api/generate-flashcards?username=${username}`)
+      if (!response.ok) {
+        throw new Error('Failed to regenerate flatter')
+      }
+      const newFlashcards = await response.json()
+      setFlashcards(newFlashcards)
+    } catch (err) {
+      console.error('Error regenerating flatter:', err)
+    } finally {
+      setIsRegenerating(false)
+    }
+  }
+
   if (!username) {
     return (
-      <div className="h-screen overflow-hidden flex items-center justify-center">
-        <div className="container mx-auto px-4 max-w-4xl">
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-4xl">
           <div className="flex flex-col items-center gap-4">
             <div className="flex flex-col sm:flex-row items-center gap-3">
               <div className="flex items-center gap-2 whitespace-nowrap">
-                <h1 className="text-2xl sm:text-3xl font-bold text-green-400">Github flatter</h1>
               </div>
-              <div className="w-11 sm:w-auto">
+              <div className="w-full sm:w-auto">
                 <UsernameInput onSubmit={handleUsernameSubmit} />
               </div>
-              <img 
-                src="/95c.png" 
-                alt="Chill Guy" 
-                className="w-25 h-25 sm:w-25 sm:h-25 object-contain hidden sm:block"
-              />
             </div>
-            
+            <img 
+              src="/95c.png" 
+              alt="Chill Guy" 
+              className="w-20 h-20 object-contain"
+            />
             <p className="text-sm text-green-300/70 italic text-center">
               Inspired by chill guy meme - keeping it cool while checking your GitHub stats
             </p>
@@ -244,7 +274,7 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
 
   if (loading) {
     return (
-      <div className="h-screen overflow-hidden flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center p-4">
         <ResponsiveDashboardSkeleton />
       </div>
     )
@@ -252,16 +282,19 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
 
   if (error) {
     return (
-      <div className="h-screen overflow-hidden flex items-center justify-center">
-        <div className="container mx-auto px-4 max-w-4xl">
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-4xl">
           <div className="flex flex-col items-center gap-4">
-            <div className="flex items-center gap-3">
-              <div className="text-red-500 text-center">{error}</div>
-              <img 
-                src="/95c.png" 
-                alt="Chill Guy" 
-                className="w-8 h-8 object-contain opacity-50"
-              />
+            <img 
+              src="/95c.png" 
+              alt="Chill Guy" 
+              className="w-32 h-32 object-contain mb-4"
+            />
+            <div className="text-center space-y-2">
+              <div className="text-red-500">{error}</div>
+              <p className="text-sm text-green-300/70 italic">
+                No worries! Stay chill and try another username
+              </p>
             </div>
             <UsernameInput onSubmit={handleUsernameSubmit} />
           </div>
@@ -272,35 +305,33 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
 
   if (!githubData) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="text-center text-green-400">No data available</div>
-        <UsernameInput onSubmit={handleUsernameSubmit} />
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-4xl">
+          <div className="flex flex-col items-center gap-4">
+            <img 
+              src="/95c.png" 
+              alt="Chill Guy" 
+              className="w-32 h-32 object-contain mb-4"
+            />
+            <div className="text-center space-y-2">
+              <div className="text-green-400">No GitHub profile found</div>
+              <p className="text-sm text-green-300/70 italic">
+                Keep it chill! Try searching for a different username
+              </p>
+            </div>
+            <UsernameInput onSubmit={handleUsernameSubmit} />
+          </div>
+        </div>
       </div>
     )
-  }
-
-  const containerAnimation = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  }
-
-  const itemAnimation = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
   }
 
   return (
     <>
       {/* Share Buttons */}
-      <div className="container mx-auto px-2 py-1 max-w-3xl flex justify-between items-center gap-1.5">
+      <div className="container mx-auto px-2 py-1 max-w-3xl flex flex-wrap justify-between items-center gap-1.5">
         {/* Logo and Image on the left */}
         <div className="flex items-center gap-2">
-          <span className="text-lg font-semibold text-green-400">Github flatter</span>
           <img 
             src="/95c.png" 
             alt="Chill Guy" 
@@ -308,8 +339,16 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
           />
         </div>
         
-        {/* Existing buttons on the right */}
+        {/* Buttons on the right */}
         <div className="flex gap-1.5">
+          <button 
+            onClick={regenerateFlatter} 
+            disabled={isRegenerating}
+            className="flex items-center gap-1.5 px-4 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <RefreshCw size={14} className={isRegenerating ? "animate-spin" : ""} />
+            <span className="text-sm">New Flatter</span>
+          </button>
           <button onClick={downloadAsImage} className="flex items-center gap-1.5 px-4 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30">
             <Download size={14} />
             <span className="text-sm">Save</span>
@@ -362,7 +401,7 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
           {/* Stats and Activity Section */}
           <div className="mt-6 space-y-4">
             {/* Stats Grid */}
-            <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
               <MotionCard variants={itemAnimation} className="p-3 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-green-500/20">
                 <CardHeader className="p-0">
                   <CardTitle className="text-base mb-2 text-green-400">Repository Stats</CardTitle>
@@ -394,7 +433,7 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
                       <p className="text-xs text-gray-400 mb-1 line-clamp-1">
                         {repo.description || "No description available"}
                       </p>
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex flex-wrap items-center gap-1.5">
                         <Badge variant="secondary" className="text-[10px] bg-green-700/50 text-green-100">⭐ {repo.stars}</Badge>
                         <Badge variant="outline" className="text-[10px] border-green-500/50 text-green-300">{repo.language}</Badge>
                       </div>
@@ -413,7 +452,7 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
                     {githubData.recentActivity.slice(0, 3).map((activity, index) => (
                       <motion.li 
                         key={index} 
-                        className="flex items-center gap-1.5 text-[10px]"
+                        className="flex flex-wrap items-center gap-1.5 text-[10px]"
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1 }}
@@ -429,7 +468,7 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
             </motion.div>
 
             {/* Activity Graph */}
-            <MotionCard variants={itemAnimation} className="p-3 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-green-500/20">
+            {/* <MotionCard variants={itemAnimation} className="p-3 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-green-500/20">
               <CardHeader className="p-0">
                 <CardTitle className="text-base mb-2 text-green-400">Activity Over Time</CardTitle>
               </CardHeader>
@@ -450,7 +489,7 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
                   </div>
                 </div>
               </CardContent>
-            </MotionCard>
+            </MotionCard> */}
           </div>
         </div>
       </div>
@@ -476,20 +515,20 @@ function AnimatedStat({ label, value }: { label: string, value: number }) {
 
 function AnimatedAppreciationCard({ content }: { content?: string }) {
   return (
-    <MotionCard className="p-6 bg-gray-800/30 backdrop-blur-sm rounded-xl border border-green-500/20">
+    <MotionCard className="p-4 sm:p-6 bg-gray-800/30 backdrop-blur-sm rounded-xl border border-green-500/20">
       <CardHeader className="p-0">
-        <CardTitle className="text-xl mb-4 text-green-400 flex items-center gap-2">
+        <CardTitle className="text-lg sm:text-xl mb-4 text-green-400 flex items-center gap-2">
           <img 
             src="/95c.png" 
             alt="Chill Guy" 
             className="w-6 h-6 object-contain"
           />
-          Welcome
+          Chill Guy Flatter
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="text-md text-gray-300 leading-relaxed">
-          <div className="relative p-4">
+        <div className="text-sm sm:text-md text-gray-300 leading-relaxed">
+          <div className="relative p-2 sm:p-4">
             <p className="font-medium">
               {content || "Loading your profile..."}
             </p>
@@ -502,9 +541,9 @@ function AnimatedAppreciationCard({ content }: { content?: string }) {
 
 function AppreciationCard({ content }: { content?: string }) {
   return (
-    <Card className="p-6 bg-gray-800/30 backdrop-blur-sm rounded-xl border border-green-500/20">
+    <Card className="p-4 sm:p-6 bg-gray-800/30 backdrop-blur-sm rounded-xl border border-green-500/20">
       <CardHeader className="p-0">
-        <CardTitle className="text-lg mb-4 text-green-400 flex items-center gap-2">
+        <CardTitle className="text-base sm:text-lg mb-4 text-green-400 flex items-center gap-2">
           <Github size={20} className="text-green-400" />
           A Note of Appreciation
         </CardTitle>
@@ -512,17 +551,17 @@ function AppreciationCard({ content }: { content?: string }) {
       <CardContent className="p-0">
         <div className="prose prose-invert prose-green max-w-none">
           <div className="space-y-4">
-            <p className="text-md font-medium italic text-green-400/90 border-l-4 border-green-400/30 pl-4">
+            <p className="text-sm sm:text-md font-medium italic text-green-400/90 border-l-4 border-green-400/30 pl-4">
               "While others might create GitHub roasting apps, I'm here to celebrate your coding journey!"
             </p>
-            <p className="text-sm text-gray-300 leading-relaxed font-medium">
+            <p className="text-xs sm:text-sm text-gray-300 leading-relaxed font-medium">
               {content || "Loading your developer story..."}
             </p>
           </div>
         </div>
       </CardContent>
       <div className="mt-4 pt-4 border-t border-green-500/10">
-        <p className="text-xs text-green-400/60 italic">
+        <p className="text-[10px] sm:text-xs text-green-400/60 italic">
           "Code is like humor. When you have to explain it, it's bad." - Cory House
         </p>
       </div>
@@ -534,42 +573,42 @@ function ResponsiveDashboardSkeleton() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="flex items-center justify-center gap-3 mb-8">
-        <h1 className="text-3xl font-bold text-green-400">GitHub Dashboard</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-green-400">GitHub Dashboard</h1>
         <img 
           src="/95c.png" 
           alt="Chill Guy" 
-          className="w-10 h-10 object-contain"
+          className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
         />
       </div>
-      <Card className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="col-span-1 lg:col-span-3 p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-              <Skeleton className="w-24 h-24 rounded-full bg-green-700/30" />
+      <Card className="p-4 sm:p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          <Card className="col-span-1 lg:col-span-3 p-4 sm:p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+              <Skeleton className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-green-700/30" />
               <div className="space-y-3 text-center sm:text-left">
-                <Skeleton className="h-8 w-48 bg-green-700/30" />
-                <Skeleton className="h-4 w-32 bg-green-700/30" />
-                <Skeleton className="h-4 w-64 bg-green-700/30" />
+                <Skeleton className="h-6 sm:h-8 w-36 sm:w-48 bg-green-700/30" />
+                <Skeleton className="h-4 w-24 sm:w-32 bg-green-700/30" />
+                <Skeleton className="h-4 w-48 sm:w-64 bg-green-700/30" />
               </div>
             </div>
             <div className="grid grid-cols-3 gap-4 mt-6 text-center">
               {[...Array(3)].map((_, i) => (
                 <div key={i}>
-                  <Skeleton className="h-8 w-16 mx-auto mb-2 bg-green-700/30" />
-                  <Skeleton className="h-4 w-20 mx-auto bg-green-700/30" />
+                  <Skeleton className="h-6 sm:h-8 w-12 sm:w-16 mx-auto mb-2 bg-green-700/30" />
+                  <Skeleton className="h-4 w-16 sm:w-20 mx-auto bg-green-700/30" />
                 </div>
               ))}
             </div>
           </Card>
 
-          <Card className="col-span-1 lg:col-span-3 p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
-            <Skeleton className="h-8 w-48 mb-6 bg-green-700/30" />
-            <Skeleton className="h-48 w-full bg-green-700/30" />
+          <Card className="col-span-1 lg:col-span-3 p-4 sm:p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
+            <Skeleton className="h-6 sm:h-8 w-36 sm:w-48 mb-4 sm:mb-6 bg-green-700/30" />
+            <Skeleton className="h-36 sm:h-48 w-full bg-green-700/30" />
           </Card>
 
           {[...Array(3)].map((_, i) => (
-            <Card key={i} className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
-              <Skeleton className="h-8 w-48 mb-6 bg-green-700/30" />
+            <Card key={i} className="p-4 sm:p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
+              <Skeleton className="h-6 sm:h-8 w-36 sm:w-48 mb-4 sm:mb-6 bg-green-700/30" />
               <div className="space-y-3">
                 <Skeleton className="h-4 w-full bg-green-700/30" />
                 <Skeleton className="h-4 w-5/6 bg-green-700/30" />
@@ -582,3 +621,4 @@ function ResponsiveDashboardSkeleton() {
     </div>
   )
 }
+

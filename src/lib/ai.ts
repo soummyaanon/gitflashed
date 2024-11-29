@@ -4,35 +4,48 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!)
 
 export async function generateAIInsights(githubData: any) {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
     const prompt = `
-Create a warm, heartfelt message for a fellow developer (about 5-7 sentences total):
+Based on the following GitHub activity data, create a warm, fun message that includes a data-driven "Chill Level" percentage (0-100%). 
 
-Opening:
-"While others might create GitHub roasting apps, I'm here to celebrate your coding journey! Every line of code tells a story, and yours is one of dedication and passion."
+Scoring Guidelines:
+- Calculate the Chill Level by analyzing these factors:
+  * Commit Consistency: 30% weight (lower score for erratic patterns or excessive commits)
+  * Time Balance: 25% weight (higher score for balanced 9-5 work hours vs late night coding)
+  * Weekend/Weekday Ratio: 20% weight (higher score for less weekend work)
+  * Project Variety: 15% weight (higher score for diverse projects)
+  * Collaboration: 10% weight (higher score for more social coding)
 
-Then add a personal message that:
-1. Appreciates their commitment to open source
-2. Includes one inspiring programming quote
-3. Acknowledges the developer journey
-4. Adds a touch of developer camaraderie
-5. Ends with brief encouragement
+The final score should reflect the actual data patterns and vary significantly between users.
+Avoid defaulting to middle-range scores (75-85%).
+
+Start with:
+"Let me analyze your vibe real quick... 🧘‍♂️"
+
+Then include:
+1. A calculated "Chill Level" percentage with a brief explanation
+2. A warm appreciation of their coding style
+3. One inspiring programming quote
+4. A friendly nod to work-life balance
+5. An encouraging closing message
 
 Style guidelines:
-- Keep it warm and conversational
-- Focus on the journey, not numbers
+- Keep it casual and fun
+- Use emojis naturally
 - Make it personal and relatable
 - Include one coding metaphor
-- Keep sentences clear and concise
+- Keep it light and positive
 
 Format as a natural, flowing paragraph.
 Aim for about 100-150 words total.
+
+GitHub Data to analyze: ${JSON.stringify(githubData)}
 `
 
     const result = await model.generateContent(prompt)
     const response = await result.response
-    const text = await response.text()
+    const text = response.text()
 
     return {
       appreciation: text.trim()

@@ -1,87 +1,59 @@
-import { GitHubUser, PinnedRepo, Activity, GitHubData } from '@/types'
+import { GitHubData } from '@/types'
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN
-const headers: HeadersInit = GITHUB_TOKEN ? { Authorization: `Bearer ${GITHUB_TOKEN}` } : {}
+const headers: HeadersInit = {
+  'Accept': 'application/vnd.github.v3+json',
+  ...(GITHUB_TOKEN && { Authorization: `Bearer ${GITHUB_TOKEN}` })
+}
 
 export async function fetchGitHubData(username: string): Promise<GitHubData> {
   try {
-    // Fetch user data
-    console.log(`Fetching user data for: ${username}`)
-    const userResponse = await fetch(`https://api.github.com/users/${username}`, { headers })
-    if (!userResponse.ok) {
-      throw new Error(`Failed to fetch GitHub user data: ${userResponse.statusText}`)
-    }
-    const userData: GitHubUser = await userResponse.json()
-    console.log('User data fetched successfully')
+    const [userResponse, reposResponse] = await Promise.all([
+      fetch(`https://api.github.com/users/${username}`, { headers }),
+      fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=10`, { headers })
+    ])
 
-    // Fetch pinned repositories
-    console.log(`Fetching pinned repositories for: ${username}`)
-    const pinnedReposQuery = `
-      query {
-        user(login: "${username}") {
-          pinnedItems(first: 6, types: REPOSITORY) {
-            nodes {
-              ... on Repository {
-                name
-                description
-                stargazerCount
-                url
-                primaryLanguage {
-                  name
-                }
-              }
-            }
-          }
-        }
+    if (!userResponse.ok || !reposResponse.ok) {
+      const rateLimitRemaining = Number(userResponse.headers.get('x-ratelimit-remaining'))
+      if (rateLimitRemaining === 0) {
+        const resetTime = new Date(Number(userResponse.headers.get('x-ratelimit-reset')) * 1000)
+        throw new Error(`GitHub API rate limit exceeded. Resets at ${resetTime.toISOString()}`)
       }
-    `
-    const pinnedReposResponse = await fetch('https://api.github.com/graphql', {
-      method: 'POST',
-      headers: {
-        ...headers,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ query: pinnedReposQuery }),
-    })
-    if (!pinnedReposResponse.ok) {
-      throw new Error(`Failed to fetch pinned repositories: ${pinnedReposResponse.statusText}`)
+      
+      if (userResponse.status === 404) {
+        throw new Error(`GitHub user ${username} not found`)
+      }
+      
+      throw new Error(`GitHub API error: ${userResponse.statusText}`)
     }
-    const pinnedReposData = await pinnedReposResponse.json()
-    const pinnedRepos: PinnedRepo[] = pinnedReposData.data.user.pinnedItems.nodes.map((repo: any) => ({
-      name: repo.name,
-      description: repo.description || '',
-      stars: repo.stargazerCount,
-      url: repo.url,
-      language: repo.primaryLanguage?.name || 'Unknown',
-    }))
-    console.log('Pinned repositories fetched successfully')
 
-    // Fetch recent activity
-    console.log(`Fetching recent activity for: ${username}`)
-    const eventsResponse = await fetch(
-      `https://api.github.com/users/${username}/events/public?per_page=10`,
-      { headers }
-    )
-    if (!eventsResponse.ok) {
-      throw new Error(`Failed to fetch activity: ${eventsResponse.statusText}`)
-    }
-    const events: Activity[] = await eventsResponse.json()
-    console.log('Activity fetched successfully')
+    const [userData, reposData] = await Promise.all([
+      userResponse.json(),
+      reposResponse.json()
+    ])
 
     return {
       user: userData,
-      pinnedRepos,
-      recentActivity: events
-        .filter(event => event.type.includes('Event'))
-        .map(event => ({
-          type: event.type.replace('Event', ''),
-          repo: event.repo.name,
-          date: new Date(event.created_at).toLocaleDateString()
-        }))
+      pinnedRepos: reposData
+        .filter((repo: any) => !repo.fork)
+        .slice(0, 6)
+        .map((repo: any) => ({
+          name: repo.name,
+          description: repo.description || '',
+          stars: repo.stargazers_count,
+          url: repo.html_url,
+          language: repo.language || 'Unknown'
+        })),
+      recentActivity: reposData
         .slice(0, 5)
+        .map((repo: any) => ({
+          type: 'UpdatedRepo',
+          repo: repo.full_name,
+          date: new Date(repo.updated_at).toLocaleDateString()
+        }))
     }
   } catch (error) {
-    console.error('Error in fetchGitHubData:', error)
-    throw new Error(error instanceof Error ? error.message : 'Failed to fetch GitHub data')
+    console.error('Error fetching GitHub data:', error)
+    throw error
   }
 }
