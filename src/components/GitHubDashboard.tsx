@@ -539,35 +539,35 @@ function AnimatedAppreciationCard({ content }: { content?: string }) {
   )
 }
 
-function AppreciationCard({ content }: { content?: string }) {
-  return (
-    <Card className="p-4 sm:p-6 bg-gray-800/30 backdrop-blur-sm rounded-xl border border-green-500/20">
-      <CardHeader className="p-0">
-        <CardTitle className="text-base sm:text-lg mb-4 text-green-400 flex items-center gap-2">
-          <Github size={20} className="text-green-400" />
-          A Note of Appreciation
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-0">
-        <div className="prose prose-invert prose-green max-w-none">
-          <div className="space-y-4">
-            <p className="text-sm sm:text-md font-medium italic text-green-400/90 border-l-4 border-green-400/30 pl-4">
-              "While others might create GitHub roasting apps, I'm here to celebrate your coding journey!"
-            </p>
-            <p className="text-xs sm:text-sm text-gray-300 leading-relaxed font-medium">
-              {content || "Loading your developer story..."}
-            </p>
-          </div>
-        </div>
-      </CardContent>
-      <div className="mt-4 pt-4 border-t border-green-500/10">
-        <p className="text-[10px] sm:text-xs text-green-400/60 italic">
-          "Code is like humor. When you have to explain it, it's bad." - Cory House
-        </p>
-      </div>
-    </Card>
-  )
-}
+// function AppreciationCard({ content }: { content?: string }) {
+//   return (
+//     <Card className="p-4 sm:p-6 bg-gray-800/30 backdrop-blur-sm rounded-xl border border-green-500/20">
+//       <CardHeader className="p-0">
+//         <CardTitle className="text-base sm:text-lg mb-4 text-green-400 flex items-center gap-2">
+//           <Github size={20} className="text-green-400" />
+//           A Note of Appreciation
+//         </CardTitle>
+//       </CardHeader>
+//       <CardContent className="p-0">
+//         <div className="prose prose-invert prose-green max-w-none">
+//           <div className="space-y-4">
+//             <p className="text-sm sm:text-md font-medium italic text-green-400/90 border-l-4 border-green-400/30 pl-4">
+//               "While others might create GitHub roasting apps, I'm here to celebrate your coding journey!"
+//             </p>
+//             <p className="text-xs sm:text-sm text-gray-300 leading-relaxed font-medium">
+//               {content || "Loading your developer story..."}
+//             </p>
+//           </div>
+//         </div>
+//       </CardContent>
+//       <div className="mt-4 pt-4 border-t border-green-500/10">
+//         <p className="text-[10px] sm:text-xs text-green-400/60 italic">
+//           "Code is like humor. When you have to explain it, it's bad." - Cory House
+//         </p>
+//       </div>
+//     </Card>
+//   )
+// }
 
 function ResponsiveDashboardSkeleton() {
   return (
