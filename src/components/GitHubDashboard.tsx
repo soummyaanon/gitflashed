@@ -1,15 +1,16 @@
 "use client"
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect,  } from 'react'
 import { motion, Variants } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { UsernameInput } from './UserInput'
-import { GitHubData, Flashcard, GitHubStats } from '@/types'
+import { GitHubData, Flashcard, } from '@/types'
 import { Share2, Github, Download, RefreshCw } from 'lucide-react'
 import html2canvas from 'html2canvas'
+import Image from 'next/image'
 
 const itemAnimation: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -145,10 +146,12 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
                 <UsernameInput onSubmit={handleUsernameSubmit} />
               </div>
             </div>
-            <img 
+            <Image 
               src="/95c.png" 
               alt="Chill Guy" 
               className="w-20 h-20 object-contain"
+              width={80}
+              height={80}
             />
             <p className="text-sm text-green-300/70 italic text-center">
               Inspired by chill guy meme - keeping it cool while checking your GitHub stats
@@ -172,10 +175,12 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-4xl">
           <div className="flex flex-col items-center gap-4">
-            <img 
+            <Image 
               src="/95c.png" 
               alt="Chill Guy" 
               className="w-32 h-32 object-contain mb-4"
+              width={128}
+              height={128}
             />
             <div className="text-center space-y-2">
               <div className="text-red-500">{error}</div>
@@ -195,10 +200,12 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-4xl">
           <div className="flex flex-col items-center gap-4">
-            <img 
+            <Image 
               src="/95c.png" 
               alt="Chill Guy" 
               className="w-32 h-32 object-contain mb-4"
+              width={128}
+              height={128}
             />
             <div className="text-center space-y-2">
               <div className="text-green-400">No GitHub profile found</div>
@@ -219,10 +226,12 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
       <div className="container mx-auto px-2 py-1 max-w-3xl flex flex-wrap justify-between items-center gap-1.5">
         {/* Logo and Image on the left */}
         <div className="flex items-center gap-2">
-          <img 
+          <Image 
             src="/95c.png" 
             alt="Chill Guy" 
             className="w-8 h-8 object-contain"
+            width={32}
+            height={32}
           />
         </div>
         
@@ -381,10 +390,12 @@ function AnimatedAppreciationCard({ content }: { content?: string }) {
     <MotionCard className="p-4 sm:p-6 bg-gray-800/30 backdrop-blur-sm rounded-xl border border-green-500/20">
       <CardHeader className="p-0">
         <CardTitle className="text-lg sm:text-xl mb-4 text-green-400 flex items-center gap-2">
-          <img 
+          <Image 
             src="/95c.png" 
             alt="Chill Guy" 
             className="w-6 h-6 object-contain"
+            width={24}
+            height={24}
           />
           Chill Guy Flatter
         </CardTitle>
@@ -407,10 +418,12 @@ function ResponsiveDashboardSkeleton() {
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="flex items-center justify-center gap-3 mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-green-400">GitHub Dashboard</h1>
-        <img 
+        <Image 
           src="/95c.png" 
           alt="Chill Guy" 
           className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
+          width={32}
+          height={32}
         />
       </div>
       <Card className="p-4 sm:p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
