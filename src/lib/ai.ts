@@ -26,24 +26,32 @@ export async function generateAIInsights(githubData: any) {
     const chillLevel = calculateChillLevel(githubData)
     const isActive = chillLevel > 50
 
+    const chillGuyMessage = isActive 
+      ? "You're like the Chill Guy, effortlessly making it look easy! Keep up the great work!" 
+      : "Even Chill Guy has his off days. Let's find ways to boost your GitHub game!"
+
     const prompt = `
-Generate a ${isActive ? 'appreciative' : 'motivational'} message for a GitHub user with a ${chillLevel}% activity score.
+Generate a ${isActive ? 'celebratory' : 'motivational'} message for a GitHub user with a ${chillLevel}% activity score.
 
 ${isActive ? `
-For active users (>50%):
+For active users (>80%):
 - Celebrate their consistency
 - Highlight their achievements
 - Use positive, energetic tone
 - Include specific stats
 - Add a fun coding quote
+- Reference the Chill Guy meme
 ` : `
-For less active users (≤50%):
+For less active users (≤60%):
 - Use friendly, encouraging tone
 - Suggest improvement areas
 - Include a motivational quote
 - Add humor about procrastination
+- Reference the Chill Guy meme
 - End with a call to action
 `}
+
+Chill Guy Message: ${chillGuyMessage}
 
 GitHub Data: ${JSON.stringify(githubData)}
 
