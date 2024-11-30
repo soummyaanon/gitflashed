@@ -1,4 +1,5 @@
 import { GitHubData } from '@/types'
+import Image from 'next/image'
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN
 const headers: HeadersInit = {

@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Flashcard } from '@/types'
+import Image from 'next/image'
 
 interface FlashcardGridProps {
   flashcards: Flashcard[]
@@ -15,6 +16,12 @@ export default function FlashcardGrid({ flashcards }: FlashcardGridProps) {
             <CardTitle>{flashcard.title}</CardTitle>
           </CardHeader>
           <CardContent className="flex-grow">
+            <Image 
+              src="/path/to/image.jpg"
+              alt={flashcard.title}
+              width={500}
+              height={300}
+            />
             <p>{flashcard.content}</p>
           </CardContent>
         </Card>
