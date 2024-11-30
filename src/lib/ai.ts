@@ -2,25 +2,33 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!)
 
-function calculateChillLevel(githubData: any) {
+interface GithubData {
+  commitCount: number;
+  recentActivity: any[];
+  pinnedRepos: any[];
+  user: {
+    followers: number;
+  };
+}
+
+function calculateChillLevel(githubData: GithubData) {
   const {
     commitCount = [],
     recentActivity = [],
     pinnedRepos = [],
     user = {}
   } = githubData
-
   // Activity scoring
-  const activityScore = Math.min(commitCount / 100, 1) * 30
+  const activityScore = Math.min((commitCount as number) / 100, 1) * 30
   const consistencyScore = (recentActivity.length / 10) * 25
   const projectScore = (pinnedRepos.length / 6) * 15
-  const socialScore = Math.min((user.followers || 0) / 50, 1) * 10
+  const socialScore = Math.min(((user as {followers: number}).followers || 0) / 50, 1) * 10
 
   const totalScore = activityScore + consistencyScore + projectScore + socialScore
   return Math.round(totalScore)
 }
 
-export async function generateAIInsights(githubData: any) {
+export async function generateAIInsights(githubData: GithubData) {
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-exp-1121' })
     const chillLevel = calculateChillLevel(githubData)
