@@ -20,7 +20,6 @@ export async function GET(request: NextRequest) {
         id: 'flashcard-1',
         title: 'Appreciation',
         content: aiInsights.appreciation,
-        image: githubData.user.avatar_url
       }
     ]
 

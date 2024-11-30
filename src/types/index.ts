@@ -45,14 +45,16 @@ export interface AIInsights {
   activity_summary: string
   improvement_suggestion: string
 }
-
 export interface ActivityData {
   date: Date;
   count: number;
 }
-
 export interface GitHubStats {
+
   public_repos: number;
+
   followers: number;
+
   following: number;
+
 }

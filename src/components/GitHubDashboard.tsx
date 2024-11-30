@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from 'react'
-import { motion, Variants } from "framer-motion"
+import { motion, AnimatePresence, Variants } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -11,11 +11,20 @@ import { GitHubData, Flashcard, GitHubStats } from '@/types'
 import * as d3 from 'd3'
 import { Share2, Github, Download, RefreshCw } from 'lucide-react'
 import html2canvas from 'html2canvas'
-import Image from 'next/image'
 
 interface ActivityData {
   date: Date;
   count: number;
+}
+
+const containerAnimation: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
 }
 
 const itemAnimation: Variants = {
@@ -249,12 +258,10 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
                 <UsernameInput onSubmit={handleUsernameSubmit} />
               </div>
             </div>
-            <Image 
+            <img 
               src="/95c.png" 
               alt="Chill Guy" 
-              width={80} 
-              height={80} 
-              className="object-contain"
+              className="w-20 h-20 object-contain"
             />
             <p className="text-sm text-green-300/70 italic text-center">
               Inspired by chill guy meme - keeping it cool while checking your GitHub stats
@@ -278,12 +285,10 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-4xl">
           <div className="flex flex-col items-center gap-4">
-            <Image 
+            <img 
               src="/95c.png" 
               alt="Chill Guy" 
-              width={128} 
-              height={128} 
-              className="object-contain mb-4"
+              className="w-32 h-32 object-contain mb-4"
             />
             <div className="text-center space-y-2">
               <div className="text-red-500">{error}</div>
@@ -303,12 +308,10 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-4xl">
           <div className="flex flex-col items-center gap-4">
-            <Image 
+            <img 
               src="/95c.png" 
               alt="Chill Guy" 
-              width={128} 
-              height={128} 
-              className="object-contain mb-4"
+              className="w-32 h-32 object-contain mb-4"
             />
             <div className="text-center space-y-2">
               <div className="text-green-400">No GitHub profile found</div>
@@ -329,12 +332,10 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
       <div className="container mx-auto px-2 py-1 max-w-3xl flex flex-wrap justify-between items-center gap-1.5">
         {/* Logo and Image on the left */}
         <div className="flex items-center gap-2">
-          <Image 
+          <img 
             src="/95c.png" 
             alt="Chill Guy" 
-            width={32} 
-            height={32} 
-            className="object-contain"
+            className="w-8 h-8 object-contain"
           />
         </div>
         
@@ -517,12 +518,10 @@ function AnimatedAppreciationCard({ content }: { content?: string }) {
     <MotionCard className="p-4 sm:p-6 bg-gray-800/30 backdrop-blur-sm rounded-xl border border-green-500/20">
       <CardHeader className="p-0">
         <CardTitle className="text-lg sm:text-xl mb-4 text-green-400 flex items-center gap-2">
-          <Image 
+          <img 
             src="/95c.png" 
             alt="Chill Guy" 
-            width={24} 
-            height={24} 
-            className="object-contain"
+            className="w-6 h-6 object-contain"
           />
           Chill Guy Flatter
         </CardTitle>
@@ -540,17 +539,45 @@ function AnimatedAppreciationCard({ content }: { content?: string }) {
   )
 }
 
+function AppreciationCard({ content }: { content?: string }) {
+  return (
+    <Card className="p-4 sm:p-6 bg-gray-800/30 backdrop-blur-sm rounded-xl border border-green-500/20">
+      <CardHeader className="p-0">
+        <CardTitle className="text-base sm:text-lg mb-4 text-green-400 flex items-center gap-2">
+          <Github size={20} className="text-green-400" />
+          A Note of Appreciation
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-0">
+        <div className="prose prose-invert prose-green max-w-none">
+          <div className="space-y-4">
+            <p className="text-sm sm:text-md font-medium italic text-green-400/90 border-l-4 border-green-400/30 pl-4">
+              "While others might create GitHub roasting apps, I'm here to celebrate your coding journey!"
+            </p>
+            <p className="text-xs sm:text-sm text-gray-300 leading-relaxed font-medium">
+              {content || "Loading your developer story..."}
+            </p>
+          </div>
+        </div>
+      </CardContent>
+      <div className="mt-4 pt-4 border-t border-green-500/10">
+        <p className="text-[10px] sm:text-xs text-green-400/60 italic">
+          "Code is like humor. When you have to explain it, it's bad." - Cory House
+        </p>
+      </div>
+    </Card>
+  )
+}
+
 function ResponsiveDashboardSkeleton() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="flex items-center justify-center gap-3 mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-green-400">GitHub Dashboard</h1>
-        <Image 
+        <img 
           src="/95c.png" 
           alt="Chill Guy" 
-          width={32} 
-          height={32} 
-          className="object-contain"
+          className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
         />
       </div>
       <Card className="p-4 sm:p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
@@ -594,4 +621,3 @@ function ResponsiveDashboardSkeleton() {
     </div>
   )
 }
-
