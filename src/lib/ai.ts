@@ -4,7 +4,7 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!)
 
 function calculateChillLevel(githubData: any) {
   const {
-    commitCount = 0,
+    commitCount = [],
     recentActivity = [],
     pinnedRepos = [],
     user = {}

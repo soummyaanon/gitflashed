@@ -1,31 +1,15 @@
 "use client"
 
 import { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence, Variants } from "framer-motion"
+import { motion, Variants } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { UsernameInput } from './UserInput'
 import { GitHubData, Flashcard, GitHubStats } from '@/types'
-import * as d3 from 'd3'
 import { Share2, Github, Download, RefreshCw } from 'lucide-react'
 import html2canvas from 'html2canvas'
-
-interface ActivityData {
-  date: Date;
-  count: number;
-}
-
-const containerAnimation: Variants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
-}
 
 const itemAnimation: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -42,104 +26,7 @@ const itemAnimation: Variants = {
 
 const MotionCard = motion(Card)
 
-function StatsVisualization({ stats }: { stats: GitHubStats }) {
-  const svgRef = useRef<SVGSVGElement>(null)
-
-  useEffect(() => {
-    if (!svgRef.current) return
-
-    const margin = { top: 10, right: 10, bottom: 20, left: 30 }
-    const width = 300 - margin.left - margin.right
-    const height = 100 - margin.top - margin.bottom
-
-    d3.select(svgRef.current).selectAll("*").remove()
-
-    const svg = d3.select(svgRef.current)
-      .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
-      .append("g")
-      .attr("transform", `translate(${margin.left},${margin.top})`)
-
-    const data: ActivityData[] = Array.from({ length: 30 }, (_, i) => ({
-      date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000),
-      count: Math.floor(Math.random() * 10)
-    }))
-
-    const x = d3.scaleTime()
-      .domain(d3.extent(data, d => d.date) as [Date, Date])
-      .range([0, width])
-
-    const y = d3.scaleLinear()
-      .domain([0, d3.max(data, d => d.count) as number])
-      .range([height, 0])
-
-    const line = d3.line<ActivityData>()
-      .x(d => x(d.date))
-      .y(d => y(d.count))
-      .curve(d3.curveCatmullRom)
-
-    svg.append("path")
-      .datum(data)
-      .attr("fill", "none")
-      .attr("stroke", "rgb(16, 185, 129)")
-      .attr("stroke-width", 2)
-      .attr("d", line)
-
-    const tooltip = d3.select(svgRef.current.parentNode as HTMLElement)
-      .append("div")
-      .attr("class", "tooltip")
-      .style("opacity", 0)
-      .style("position", "absolute")
-      .style("background-color", "rgba(0, 0, 0, 0.7)")
-      .style("color", "white")
-      .style("padding", "5px")
-      .style("border-radius", "5px")
-      .style("pointer-events", "none")
-
-    svg.selectAll(".dot")
-      .data(data)
-      .enter().append("circle")
-      .attr("class", "dot")
-      .attr("cx", d => x(d.date))
-      .attr("cy", d => y(d.count))
-      .attr("r", 4)
-      .attr("fill", "rgb(16, 185, 129)")
-      .on("mouseover", (event, d) => {
-        tooltip.transition()
-          .duration(200)
-          .style("opacity", .9)
-        tooltip.html(`Date: ${d.date.toLocaleDateString()}<br/>Count: ${d.count}`)
-          .style("left", (event.pageX + 5) + "px")
-          .style("top", (event.pageY - 28) + "px")
-      })
-      .on("mouseout", () => {
-        tooltip.transition()
-          .duration(500)
-          .style("opacity", 0)
-      })
-
-    svg.append("g")
-      .attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x).ticks(4).tickFormat(d3.timeFormat("%b %d") as any))
-      .call(g => g.select(".domain").remove())
-      .call(g => g.selectAll(".tick line").attr("stroke", "rgba(255, 255, 255, 0.2)"))
-      .call(g => g.selectAll(".tick text").attr("fill", "rgba(255, 255, 255, 0.7)"))
-
-    svg.append("g")
-      .call(d3.axisLeft(y).ticks(4))
-      .call(g => g.select(".domain").remove())
-      .call(g => g.selectAll(".tick line").attr("stroke", "rgba(255, 255, 255, 0.2)"))
-      .call(g => g.selectAll(".tick text").attr("fill", "rgba(255, 255, 255, 0.7)"))
-
-  }, [stats])
-
-  return (
-    <div className="w-full h-[100px] relative">
-      <svg ref={svgRef} className="w-full h-full"></svg>
-    </div>
-  )
-}
-
-const downloadAsImage = async () => {
+function downloadAsImage() {
   const element = document.getElementById('github-profile-card')
   if (!element) return
 
@@ -147,7 +34,7 @@ const downloadAsImage = async () => {
     const originalBackground = element.style.background
     element.style.background = '#1a1b1e'
     
-    const canvas = await html2canvas(element, {
+    html2canvas(element, {
       backgroundColor: '#1a1b1e',
       scale: 2,
       logging: false,
@@ -159,15 +46,15 @@ const downloadAsImage = async () => {
           clonedElement.style.transform = 'none'
         }
       }
+    }).then(canvas => {
+      element.style.background = originalBackground
+
+      const image = canvas.toDataURL('image/png', 1.0)
+      const link = document.createElement('a')
+      link.download = 'github-profile.png'
+      link.href = image
+      link.click()
     })
-
-    element.style.background = originalBackground
-
-    const image = canvas.toDataURL('image/png', 1.0)
-    const link = document.createElement('a')
-    link.download = 'github-profile.png'
-    link.href = image
-    link.click()
   } catch (err) {
     console.error('Error generating image:', err)
   }
@@ -466,30 +353,6 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
                 </CardContent>
               </MotionCard>
             </motion.div>
-
-            {/* Activity Graph */}
-            {/* <MotionCard variants={itemAnimation} className="p-3 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-green-500/20">
-              <CardHeader className="p-0">
-                <CardTitle className="text-base mb-2 text-green-400">Activity Over Time</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <StatsVisualization stats={githubData.user} />
-                <div className="mt-3 grid grid-cols-3 gap-3 text-center">
-                  <div className="text-[10px]">
-                    <p className="text-green-300 font-semibold">Peak Activity</p>
-                    <span className="text-gray-400">23 commits</span>
-                  </div>
-                  <div className="text-[10px]">
-                    <p className="text-green-300 font-semibold">Average</p>
-                    <span className="text-gray-400">8 commits/day</span>
-                  </div>
-                  <div className="text-[10px]">
-                    <p className="text-green-300 font-semibold">Total</p>
-                    <span className="text-gray-400">142 commits</span>
-                  </div>
-                </div>
-              </CardContent>
-            </MotionCard> */}
           </div>
         </div>
       </div>
@@ -538,36 +401,6 @@ function AnimatedAppreciationCard({ content }: { content?: string }) {
     </MotionCard>
   )
 }
-
-// function AppreciationCard({ content }: { content?: string }) {
-//   return (
-//     <Card className="p-4 sm:p-6 bg-gray-800/30 backdrop-blur-sm rounded-xl border border-green-500/20">
-//       <CardHeader className="p-0">
-//         <CardTitle className="text-base sm:text-lg mb-4 text-green-400 flex items-center gap-2">
-//           <Github size={20} className="text-green-400" />
-//           A Note of Appreciation
-//         </CardTitle>
-//       </CardHeader>
-//       <CardContent className="p-0">
-//         <div className="prose prose-invert prose-green max-w-none">
-//           <div className="space-y-4">
-//             <p className="text-sm sm:text-md font-medium italic text-green-400/90 border-l-4 border-green-400/30 pl-4">
-//               "While others might create GitHub roasting apps, I'm here to celebrate your coding journey!"
-//             </p>
-//             <p className="text-xs sm:text-sm text-gray-300 leading-relaxed font-medium">
-//               {content || "Loading your developer story..."}
-//             </p>
-//           </div>
-//         </div>
-//       </CardContent>
-//       <div className="mt-4 pt-4 border-t border-green-500/10">
-//         <p className="text-[10px] sm:text-xs text-green-400/60 italic">
-//           "Code is like humor. When you have to explain it, it's bad." - Cory House
-//         </p>
-//       </div>
-//     </Card>
-//   )
-// }
 
 function ResponsiveDashboardSkeleton() {
   return (
