@@ -69,7 +69,7 @@ export function UsernameInput({ onSubmit }: UsernameInputProps) {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2, duration: 0.5 }}
             >
-              You&apos;re a Developer, But You&apos;re Also a Chill Person
+              You&apos;re a Developer, But You&apos;re Also a Chill Guy
             </motion.p>
           </div>
           <div className="w-full max-w-md flex flex-col sm:flex-row gap-2">
