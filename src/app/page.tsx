@@ -1,6 +1,5 @@
 "use client"
 
-
 import ResponsiveMinimalisticGitHubDashboard from '@/components/GitHubDashboard'
 
 export default function Home() {
