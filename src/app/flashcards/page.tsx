@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from 'react'
 import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
