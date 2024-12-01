@@ -40,9 +40,6 @@ export async function generateAIInsights(githubData: GitHubData) {
     const chillLevel = calculateChillLevel(githubData)
     const isActive = chillLevel > 50
 
-    const chillGuyMessage = chillGuyMessages[isActive ? 'active' : 'inactive'][
-      Math.floor(Math.random() * 4)
-    ]
 
     const prompt = `
 Create a personality-rich narrative description for a GitHub developer with a ${chillLevel}% activity score. Think of this as a character study that captures their essence as The Chill Guy of coding.
