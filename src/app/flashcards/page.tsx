@@ -3,8 +3,21 @@ import { notFound } from 'next/navigation'
 import FlashcardGrid from '@/components/FlashcardGrid'
 import { Flashcard } from '@/types'
 
-export default async function FlashcardsPage({ params }: { params: { username: string } }) {
-  const { username } = params
+interface PageParams {
+  username: string
+}
+
+interface PageProps {
+  params: Promise<PageParams> | undefined
+}
+
+export default async function FlashcardsPage({ params }: PageProps) {
+  if (!params) {
+    notFound()
+  }
+
+  const resolvedParams = await Promise.resolve(params)
+  const username = resolvedParams?.username
 
   if (!username) {
     notFound()
