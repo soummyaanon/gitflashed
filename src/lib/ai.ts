@@ -21,16 +21,16 @@ function calculateChillLevel(githubData: GitHubData) {
 
 const chillGuyMessages = {
   active: [
-    "You're like the Chill Guy, making it look so easy with those commits! 🐕",
-    "Lowkey crushing it like our favorite laid-back doggo! 🐾",
-    "Just vibing and coding, that's your whole deal! 🎧",
-    "My guy's out here in their grey sweater, pushing code like it's nothing 💻"
+    "You're the definition of chill, making those commits look effortless! 🎧",
+    "Lowkey crushing it with that laid-back style! ✨",
+    "Just vibing and coding, that's your whole energy! 💫",
+    "Out here making development look smooth and easy 💻"
   ],
   inactive: [
-    "Even Chill Guy had to start somewhere before he got his grey sweater game on! 🐕",
-    "Hands in pockets, taking it easy? Time to show them what you've got! 💪",
-    "The Chill Guy energy is there, just needs a bit more git push! 🚀",
-    "Looking as calm as Chill Guy, but let's turn that smirk into some commits! 🎮"
+    "Even the chillest devs started somewhere! 🌱",
+    "Taking it easy? That's cool - ready when you are! 💪",
+    "The chill energy is there, just needs some git pushes! 🚀",
+    "Looking calm and collected - let's turn that into some commits! 💫"
   ]
 }
 
@@ -45,29 +45,34 @@ export async function generateAIInsights(githubData: GitHubData) {
     ]
 
     const prompt = `
-Generate a ${isActive ? 'celebratory' : 'motivational'} message for a GitHub user with a ${chillLevel}% activity score.
+Create a personality-rich narrative description for a GitHub developer with a ${chillLevel}% activity score. Think of this as a character study that captures their essence as The Chill Guy of coding.
 
-Context: Reference the "Just a Chill Guy" meme - a laid-back dog character in a grey sweater and jeans who makes everything look effortless.
+Context: Imagine writing a compelling, slightly playful biography that captures both their technical prowess and laid-back personality. Use their GitHub stats to paint a picture of their development style.
 
 ${isActive ? `
 For active users (>50%):
-- Channel that "they make it look so easy" energy
-- Mention their effortless coding style
-- Compare their smooth git workflow to Chill Guy's relaxed vibe
-- Add coding puns with a laid-back twist
+- Write a narrative that portrays them as a master of their craft who makes it look effortless
+- Reference their ${githubData.user.public_repos} repos like they're collecting them as casually as someone collects vinyl records
+- Describe how they navigate complex code with the same ease as someone choosing their favorite playlist
+- Mention their ${githubData.recentActivity.length} recent updates as if they're just another day in their naturally productive life
 ` : `
 For less active users (≤50%):
-- Use Chill Guy's supportive, no-pressure attitude
-- Suggest taking it easy while improving
-- Reference "lowkey doesn't give a fuck" but in a productive way
-- Add humor about finding their coding groove
+- Paint them as the zen master of potential, taking their time to craft their coding journey
+- Describe their ${githubData.user.public_repos} repos as carefully curated works in progress
+- Reference their approach to coding as methodically casual, like a chess player who never rushes their moves
+- Treat their ${githubData.recentActivity.length} recent activities as thoughtful steps in their development story
 `}
 
-Chill Guy Message: ${chillGuyMessage}
+Example style: "okan, a connoisseur of football drama, expertly dissects the tactical nuances of Turkish and international clubs with the precision of a brain surgeon performing a delicate operation on a particularly stubborn glioma. He navigates the treacherous waters of social media with the effortless grace of a seasoned pirate, occasionally dropping a witty one-liner that would make even the most seasoned comedian blush."
 
-GitHub Data: ${JSON.stringify(githubData)}
+GitHub Stats to weave in:
+- ${githubData.user.login}, maintaining ${githubData.user.public_repos} repositories
+- Following: ${githubData.user.following} developers
+- Followers: ${githubData.user.followers} admirers
+- Recent Activity: ${githubData.recentActivity.length} updates
+- Pinned Projects: ${githubData.pinnedRepos.length} showcased works
 
-Keep it under 150 words, use emojis naturally, and make it personal. Remember: we're channeling that laid-back dog in the grey sweater who makes everything look effortless!
+Create a narrative under 150 words that captures their unique blend of technical skill and chill vibes. Make it personal, slightly humorous, and rich with creative metaphors. End with a simple statement affirming them as "just a chill guy/girl."
 `
 
     const result = await model.generateContent(prompt)
