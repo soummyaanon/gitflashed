@@ -283,7 +283,14 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
                   </motion.p>
                 </div>
                 <div className="hidden sm:block">
-                  <Github size={24} className="text-green-400/30" />
+                  <a 
+                    href={`https://github.com/${githubData.user.login}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="hover:text-green-400 transition-colors"
+                  >
+                    <Github size={24} className="text-green-400/30" />
+                  </a>
                 </div>
               </motion.div>
             </MotionCard>

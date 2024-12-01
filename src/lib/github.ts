@@ -35,9 +35,9 @@ export async function fetchGitHubData(username: string): Promise<GitHubData> {
     return {
       user: userData,
       pinnedRepos: reposData
-        .filter((repo: any) => !repo.fork)
+        .filter((repo: { fork: boolean }) => !repo.fork)
         .slice(0, 6)
-        .map((repo: any) => ({
+        .map((repo: { name: string; description: string; stargazers_count: number; html_url: string; language: string }) => ({
           name: repo.name,
           description: repo.description || '',
           stars: repo.stargazers_count,
@@ -46,7 +46,7 @@ export async function fetchGitHubData(username: string): Promise<GitHubData> {
         })),
       recentActivity: reposData
         .slice(0, 5)
-        .map((repo: any) => ({
+        .map((repo: { full_name: string; updated_at: string }) => ({
           type: 'UpdatedRepo',
           repo: repo.full_name,
           date: new Date(repo.updated_at).toLocaleDateString()

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { fetchGitHubData } from '@/lib/github'
 import { generateAIInsights } from '@/lib/ai'
+import { GitHubData } from '@/types'
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
@@ -11,7 +12,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const githubData = await fetchGitHubData(username)
+    const githubData: GitHubData = await fetchGitHubData(username)
     const aiInsights = await generateAIInsights(githubData)
 
     // Convert AI insights to flashcards

@@ -23,10 +23,10 @@ export function UsernameInput({ onSubmit }: UsernameInputProps) {
     <div className="w-full max-w-4xl mx-auto px-4 py-8 sm:py-12 md:py-16">
       <form onSubmit={handleSubmit} className="flex flex-col items-center gap-6 sm:gap-8 md:gap-10">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-green-400 text-center mb-4 sm:mb-6">
-          GitHub Flatter
+          Chill Git
         </h1>
         <p className="text-lg sm:text-xl text-green-300/70 italic text-center mb-6 sm:mb-8">
-          Discover your GitHub journey in style!
+          You Are a Developer,But You Are a Chill Guy
         </p>
         <div className="w-full max-w-2xl flex flex-col sm:flex-row items-center gap-4">
           <div className="relative w-full">
