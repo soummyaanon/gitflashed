@@ -174,8 +174,8 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
           } catch (_) {
             try {
               await navigator.share({
-                title: 'My GitHub Dashboard',
-                text: 'Check out my GitHub stats!',
+                title: 'ChillGits',
+                text: 'Check out My Chill Gits #ChilGuy !',
                 url: window.location.href,
               });
             } catch {
