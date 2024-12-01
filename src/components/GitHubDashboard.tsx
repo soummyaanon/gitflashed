@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { UsernameInput } from './UserInput'
 import { GitHubData, Flashcard } from '@/types'
-import { Share2, Github, Download, RefreshCw, X } from 'lucide-react'
+import { Share2, Github, Download, RefreshCw,  } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import Image from 'next/image'
 
