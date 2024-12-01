@@ -19,20 +19,20 @@ function calculateChillLevel(githubData: GitHubData) {
   return Math.round(totalScore)
 }
 
-const chillGuyMessages = {
-  active: [
-    "You're the definition of chill, making those commits look effortless! 🎧",
-    "Lowkey crushing it with that laid-back style! ✨",
-    "Just vibing and coding, that's your whole energy! 💫",
-    "Out here making development look smooth and easy 💻"
-  ],
-  inactive: [
-    "Even the chillest devs started somewhere! 🌱",
-    "Taking it easy? That's cool - ready when you are! 💪",
-    "The chill energy is there, just needs some git pushes! 🚀",
-    "Looking calm and collected - let's turn that into some commits! 💫"
-  ]
-}
+// const chillGuyMessages = {
+//   active: [
+//     "You're the definition of chill, making those commits look effortless! 🎧",
+//     "Lowkey crushing it with that laid-back style! ✨",
+//     "Just vibing and coding, that's your whole energy! 💫",
+//     "Out here making development look smooth and easy 💻"
+//   ],
+//   inactive: [
+//     "Even the chillest devs started somewhere! 🌱",
+//     "Taking it easy? That's cool - ready when you are! 💪",
+//     "The chill energy is there, just needs some git pushes! 🚀",
+//     "Looking calm and collected - let's turn that into some commits! 💫"
+//   ]
+// }
 
 export async function generateAIInsights(githubData: GitHubData) {
   try {
