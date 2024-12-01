@@ -22,7 +22,7 @@ export default function FlashcardsPage({ params }: PageProps) {
   const [error, setError] = useState<string | null>(null)
 
   // Resolve params only once when the component mounts
-  const [resolvedParams, setResolvedParams] = useState<PageParams | null>(null);
+  const [, setResolvedParams] = useState<PageParams | null>(null);
 
   if (!params) {
     notFound()
