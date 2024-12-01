@@ -134,33 +134,68 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
   }
 
   const shareAsPNG = async () => {
-    if (!dashboardRef.current) return;
+    const element = document.getElementById('github-profile-card')
+    if (!element) return;
 
     try {
-      const canvas = await html2canvas(dashboardRef.current, {
+      const originalBackground = element.style.background
+      element.style.background = '#1a1b1e'
+
+      const canvas = await html2canvas(element, {
+        backgroundColor: '#1a1b1e',
         scale: 2,
         logging: false,
         useCORS: true,
         allowTaint: true,
-      });
-
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const file = new File([blob], 'github-dashboard.png', { type: 'image/png' });
-          const shareData = {
-            files: [file],
-            title: 'My GitHub Dashboard',
-            text: 'Check out my GitHub stats!',
-          };
-
-          if (navigator.canShare && navigator.canShare(shareData)) {
-            navigator.share(shareData);
-          } else {
-            const url = URL.createObjectURL(blob);
-            window.open(url, '_blank');
+        onclone: (clonedDoc) => {
+          const clonedElement = clonedDoc.getElementById('github-profile-card')
+          if (clonedElement) {
+            clonedElement.style.transform = 'none'
           }
         }
-      }, 'image/png');
+      });
+
+      element.style.background = originalBackground
+
+      canvas.toBlob(async (blob) => {
+        if (blob) {
+          const file = new File([blob], 'github-dashboard.png', { type: 'image/png' });
+          
+          const twitterShareUrl = `https://twitter.com/intent/tweet?text=Check out my GitHub stats!&url=${encodeURIComponent(window.location.href)}`;
+          
+          try {
+            // Try to share both the PNG and the URL
+            await navigator.share({
+              files: [file],
+              title: 'My GitHub Dashboard',
+              text: 'Check out my GitHub stats!',
+              url: window.location.href,
+            });
+          } catch (shareError) {
+            // If native sharing fails, try to share just the URL
+            try {
+              await navigator.share({
+                title: 'My GitHub Dashboard',
+                text: 'Check out my GitHub stats!',
+                url: window.location.href,
+              });
+            } catch {
+              // If all sharing attempts fail, open Twitter share dialog
+              window.open(twitterShareUrl, '_blank', 'width=550,height=420');
+            }
+
+            // Also trigger PNG download if sharing failed
+            const downloadUrl = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = 'github-dashboard.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(downloadUrl);
+          }
+        }
+      }, 'image/png', 1.0);
     } catch (error) {
       console.error('Error sharing as PNG:', error);
     }
