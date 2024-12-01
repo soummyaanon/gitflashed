@@ -172,7 +172,6 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
               url: window.location.href,
             });
           } catch (shareError) {
-            // If native sharing fails, try to share just the URL
             try {
               await navigator.share({
                 title: 'My GitHub Dashboard',
