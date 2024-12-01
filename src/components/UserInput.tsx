@@ -1,9 +1,12 @@
 "use client"
 
 import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Github } from 'lucide-react'
+import { Github, Loader2 } from 'lucide-react'
+import { useToast } from "@/hooks/use-toast"
+import { ToastAction } from "@/components/ui/toast"
 
 interface UsernameInputProps {
   onSubmit: (username: string) => void
@@ -11,44 +14,109 @@ interface UsernameInputProps {
 
 export function UsernameInput({ onSubmit }: UsernameInputProps) {
   const [username, setUsername] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const { toast } = useToast()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (username.trim()) {
-      onSubmit(username.trim())
+      setIsLoading(true)
+      try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        onSubmit(username.trim())
+      } catch (error) {
+        console.error('Error:', error)
+        toast({
+          title: "Uh-oh! Something went wrong.",
+          description: "Failed to fetch GitHub data. Please try again.",
+          variant: "destructive",
+          action: <ToastAction altText="Try again">Try again</ToastAction>,
+        })
+      } finally {
+        setIsLoading(false)
+      }
+    } else {
+      toast({
+        title: "Username required",
+        description: "Please enter a GitHub username.",
+        variant: "default",
+      })
     }
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 py-8 sm:py-12 md:py-16">
-      <form onSubmit={handleSubmit} className="flex flex-col items-center gap-6 sm:gap-8 md:gap-10">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-green-400 text-center mb-4 sm:mb-6">
-          Chill Git
-        </h1>
-        <p className="text-lg sm:text-xl text-green-300/70 italic text-center mb-6 sm:mb-8">
-          You Are a Developer,But You Are a Chill Guy
-        </p>
-        <div className="w-full max-w-2xl flex flex-col sm:flex-row items-center gap-4">
-          <div className="relative w-full">
-            <Input
-              type="text"
-              placeholder="Your GitHub Handle"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full text-lg sm:text-xl py-6 pl-12 pr-4 rounded-full bg-gray-800/50 border-2 border-green-500/30 focus:border-green-500/60 transition-all duration-300 ease-in-out"
-            />
-            <Github className="absolute left-4 top-1/2 transform -translate-y-1/2 text-green-500/60 w-6 h-6" />
+    <div className="w-full max-w-2xl mx-auto p-4">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="relative overflow-hidden"
+      >
+        <form onSubmit={handleSubmit} className="relative z-10 flex flex-col items-center gap-6 rounded-3xl p-8">
+          <div className="text-center">
+            <motion.h1 
+              className="text-4xl sm:text-6xl font-bold bg-gradient-to-r from-green-400 to-blue-500 text-transparent bg-clip-text"
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5, type: "spring", stiffness: 200 }}
+            >
+              Chill Git
+            </motion.h1>
+            <motion.p 
+              className="mt-2 text-sm text-green-300/70 italic"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+            >
+              You're a Developer, But You're Also a Chill Person
+            </motion.p>
           </div>
-          <Button 
-            type="submit" 
-            className="w-full sm:w-auto text-lg sm:text-xl py-6 px-8 rounded-full bg-green-500 hover:bg-green-600 text-white font-semibold transition-all duration-300 ease-in-out"
-          >
-            Generate Flatter
-          </Button>
-        </div>
-
-      </form>
+          <div className="w-full max-w-md flex flex-col sm:flex-row gap-2">
+            <div className="relative flex-1">
+              <motion.div
+                initial={{ scale: 0.95 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Input
+                  type="text"
+                  placeholder="GitHub Username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border-2 border-green-500/30 focus:border-green-500/60 rounded-full transition-all duration-300 ease-in-out text-green-300 placeholder-green-500/50"
+                  disabled={isLoading}
+                />
+                <Github className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-500/60 w-5 h-5" />
+              </motion.div>
+            </div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={isLoading ? 'loading' : 'idle'}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Button 
+                  type="submit" 
+                  className="w-full sm:w-auto bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 transition-all duration-300 ease-in-out rounded-full px-6 py-3 text-white font-semibold shadow-lg hover:shadow-xl"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Loading
+                    </>
+                  ) : (
+                    'Generate'
+                  )}
+                </Button>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </form>
+      </motion.div>
     </div>
   )
 }
-
