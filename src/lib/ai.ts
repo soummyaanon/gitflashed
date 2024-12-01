@@ -36,7 +36,7 @@ function calculateChillLevel(githubData: GitHubData) {
 
 export async function generateAIInsights(githubData: GitHubData) {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-exp-1121' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
     const chillLevel = calculateChillLevel(githubData)
     const isActive = chillLevel > 50
 
