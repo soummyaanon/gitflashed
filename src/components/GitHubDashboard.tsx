@@ -171,7 +171,7 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
               text: 'Check out my GitHub stats!',
               url: window.location.href,
             });
-          } catch (shareError) {
+          } catch (_) {
             try {
               await navigator.share({
                 title: 'My GitHub Dashboard',
