@@ -253,13 +253,7 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
             >
               <div className="container mx-auto px-2 py-1 max-w-3xl flex flex-wrap justify-between items-center gap-1.5">
                 <div className="flex items-center gap-2">
-                  <Image 
-                    src="/95c.png" 
-                    alt="Chill Guy" 
-                    className="w-8 h-8 object-contain"
-                    width={32}
-                    height={32}
-                  />
+   
                 </div>
                 
                 <div className="flex gap-1.5">
@@ -279,7 +273,7 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <Download size={14} />
+                    <Download size={30} />
                     <span className="text-sm">Save</span>
                   </motion.button>
                   <motion.button 
