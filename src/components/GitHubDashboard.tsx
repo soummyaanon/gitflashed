@@ -12,6 +12,19 @@ import { Share2, Github, Download, RefreshCw } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import Image from 'next/image'
 
+const CHILL_MESSAGES = [
+  "Keeping it cool while coding awesome stuff! 😎",
+  "Debugging with a smile! 🌟",
+  "Writing code and vibing! 🎵",
+  "Turning coffee into code, chillingly! ☕",
+  "Just another day in paradise... coding! 🌴",
+  "Stay cool, keep coding! 🧊",
+  "Crafting digital magic, no stress! ✨",
+  "Chillin' in the code zone! 🚀",
+  "Making bugs disappear, smoothly! 🪄",
+  "Code. Relax. Repeat. 🎮"
+];
+
 const itemAnimation: Variants = {
   hidden: { opacity: 0, y: 20 },
   show: { 
@@ -59,6 +72,10 @@ function downloadAsImage() {
   } catch (err) {
     console.error('Error generating image:', err)
   }
+}
+
+const getRandomChillPercentage = () => {
+  return Math.floor(Math.random() * (20) + 80); // Returns a number between 80-100
 }
 
 export default function ResponsiveMinimalisticGitHubDashboard() {
@@ -171,11 +188,11 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
               text: 'Check out my GitHub stats!',
               url: window.location.href,
             });
-          } catch {
+          } catch (shareError) {
             try {
               await navigator.share({
-                title: 'ChillGits',
-                text: 'Check out My Chill Gits #ChilGuy !',
+                title: 'My GitHub Dashboard',
+                text: 'Check out my GitHub stats!',
                 url: window.location.href,
               });
             } catch {
@@ -319,64 +336,44 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
 
                   <AnimatedAppreciationCard content={flashcards[0]?.content} />
 
-                  <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    <MotionCard variants={itemAnimation} className="p-3 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-green-500/20">
+                  <motion.div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <MotionCard variants={itemAnimation} className="p-4 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-green-500/20 hover:border-green-500/30 transition-all duration-300">
                       <CardHeader className="p-0">
-                        <CardTitle className="text-base mb-2 text-green-400">Account Stats</CardTitle>
-                      </CardHeader>
-                      <CardContent className="p-0">
-                        <div className="grid grid-cols-3 gap-3 text-center">
-                          <AnimatedStat label="Repos" value={githubData.user.public_repos} />
-                          <AnimatedStat label="Followers" value={githubData.user.followers} />
-                          <AnimatedStat label="Following" value={githubData.user.following} />
-                        </div>
-                      </CardContent>
-                    </MotionCard>
-
-                    <MotionCard variants={itemAnimation} className="p-3 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-green-500/20 hover:border-green-500/40 transition-colors">
-                      <CardHeader className="p-0">
-                        <CardTitle className="text-base sm:text-lg mb-2 text-green-400">Pinned Repos</CardTitle>
-                      </CardHeader>
-                      <CardContent className="p-0">
-                        {githubData.pinnedRepos.slice(0, 2).map((repo, index) => (
-                          <motion.li 
-                            key={index} 
-                            className="flex flex-wrap items-center gap-2 text-[11px] sm:text-xs hover:bg-green-500/5 p-1 rounded-md transition-colors mb-2 last:mb-0"
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                          >
-                            <Badge variant="outline" className="text-[10px] sm:text-xs whitespace-nowrap border-green-500/50 text-green-300">{repo.name}</Badge>
-                            <span className="truncate text-gray-300 hover:text-green-300 transition-colors">{repo.description || "No description available"}</span>
-                            <div className="flex items-center gap-1.5 ml-auto">
-                              <Badge variant="secondary" className="text-[10px] bg-green-700/50 text-green-100">⭐ {repo.stars}</Badge>
-                              <Badge variant="outline" className="text-[10px] border-green-500/50 text-green-300">{repo.language}</Badge>
+                        <CardTitle className="text-base mb-4 text-green-400 flex items-center gap-3">
+                          <Image 
+                            src="/95c.png" 
+                            alt="Chill Guy" 
+                            className="w-12 h-12 object-contain"
+                            width={48}
+                            height={48}
+                          />
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-baseline gap-2">
+                              <span>@{githubData.user.login} is a</span>
+                              <motion.span 
+                                className="text-xl font-bold bg-gradient-to-r from-green-400 to-emerald-300 bg-clip-text text-transparent"
+                                initial={{ scale: 0.9 }}
+                                animate={{ scale: 1 }}
+                                transition={{ duration: 0.5 }}
+                              >
+                                {getRandomChillPercentage()}% 
+                              </motion.span>
                             </div>
-                          </motion.li>
-                        ))}
-                      </CardContent>
-                    </MotionCard>
-
-                    <MotionCard variants={itemAnimation} className="p-3 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-green-500/20 hover:border-green-500/40 transition-colors">
-                      <CardHeader className="p-0">
-                        <CardTitle className="text-base sm:text-lg mb-2 text-green-400">Recent Activity</CardTitle>
+                            <span className="text-lg text-green-300/90">Chill Developer</span>
+                          </div>
+                        </CardTitle>
                       </CardHeader>
                       <CardContent className="p-0">
-                        <ul className="space-y-2">
-                          {githubData.recentActivity.slice(0, 3).map((activity, index) => (
-                            <motion.li 
-                              key={index} 
-                              className="flex flex-wrap items-center gap-2 text-[11px] sm:text-xs hover:bg-green-500/5 p-1 rounded-md transition-colors"
-                              initial={{ opacity: 0, x: -10 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: index * 0.1 }}
-                            >
-                              <Badge variant="outline" className="text-[10px] sm:text-xs whitespace-nowrap border-green-500/50 text-green-300">{activity.type}</Badge>
-                              <span className="truncate text-gray-300 hover:text-green-300 transition-colors">{activity.repo}</span>
-                              <span className="text-gray-400 ml-auto whitespace-nowrap text-[10px] sm:text-xs">{activity.date}</span>
-                            </motion.li>
-                          ))}
-                        </ul>
+                        <div className="flex items-center justify-center mt-2">
+                          <motion.p 
+                            className="text-sm text-gray-300 italic"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.2 }}
+                          >
+                            {CHILL_MESSAGES[Math.floor(Math.random() * CHILL_MESSAGES.length)]}
+                          </motion.p>
+                        </div>
                       </CardContent>
                     </MotionCard>
                   </motion.div>
@@ -387,22 +384,6 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
         </AnimatePresence>
       </div>
     </div>
-  )
-}
-
-function AnimatedStat({ label, value }: { label: string, value: number }) {
-  return (
-    <motion.div>
-      <motion.p 
-        className="text-lg font-bold text-green-300"
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      >
-        {value}
-      </motion.p>
-      <p className="text-xs text-gray-400">{label}</p>
-    </motion.div>
   )
 }
 
@@ -464,19 +445,6 @@ function ResponsiveDashboardSkeleton() {
             <Skeleton className="h-6 sm:h-8 w-36 sm:w-48 mb-4 sm:mb-6 bg-green-700/30 animate-pulse" />
             <Skeleton className="h-36 sm:h-48 w-full bg-green-700/30 animate-pulse" />
           </Card>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {[...Array(3)].map((_, i) => (
-              <Card key={i} className="p-4 sm:p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
-                <Skeleton className="h-6 sm:h-8 w-36 sm:w-48 mb-4 sm:mb-6 bg-green-700/30 animate-pulse" />
-                <div className="space-y-3">
-                  <Skeleton className="h-4 w-full bg-green-700/30 animate-pulse" />
-                  <Skeleton className="h-4 w-5/6 bg-green-700/30 animate-pulse" />
-                  <Skeleton className="h-4 w-4/6 bg-green-700/30 animate-pulse" />
-                </div>
-              </Card>
-            ))}
-          </div>
         </div>
       </Card>
     </div>
