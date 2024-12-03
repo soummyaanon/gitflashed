@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence, Variants } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { UsernameInput } from './UserInput'
 import { GitHubData, Flashcard } from '@/types'
@@ -23,6 +22,7 @@ const CHILL_MESSAGES = [
   "Chillin' in the code zone! 🚀",
   "Making bugs disappear, smoothly! 🪄",
   "Code. Relax. Repeat. 🎮"
+  
 ];
 
 const itemAnimation: Variants = {
@@ -188,7 +188,7 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
               text: 'Check out my GitHub stats!',
               url: window.location.href,
             });
-          } catch (shareError) {
+          } catch (_) {
             try {
               await navigator.share({
                 title: 'My GitHub Dashboard',
