@@ -1,15 +1,19 @@
+'use client'
+
 import { Metadata } from 'next';
 import ResponsiveMinimalisticGitHubDashboard from '@/components/GitHubDashboard';
 
-interface PageProps {
+type Props = {
   params: {
     username: string;
   };
-  searchParams: { [key: string]: string | string[] | undefined };
-}
+  searchParams: Record<string, string | string[] | undefined>;
+};
 
 // Generate dynamic metadata for each user's dashboard
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata(
+  { params }: Props
+): Promise<Metadata> {
   const { username } = params;
 
   return {
@@ -36,7 +40,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default function DashboardPage({ params }: PageProps) {
+export default async function DashboardPage({ params }: Props) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black py-8">
       <div className="max-w-4xl mx-auto">
