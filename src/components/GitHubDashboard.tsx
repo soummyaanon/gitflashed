@@ -84,8 +84,8 @@ const glassStyle = "backdrop-filter backdrop-blur-lg bg-opacity-20 bg-black/30 s
 const neonBorderStyle = "animate-border-pulse border border-green-500/50 shadow-[0_0_15px_rgba(34,197,94,0.2)]"
 const decorativeStyle = "before:absolute before:inset-0 before:bg-gradient-to-br before:from-green-500/5 before:to-transparent before:z-0"
 
-export default function ResponsiveMinimalisticGitHubDashboard() {
-  const [username, setUsername] = useState<string | null>(null)
+export default function ResponsiveMinimalisticGitHubDashboard({ initialUsername }: { initialUsername?: string }) {
+  const [username, setUsername] = useState<string | null>(initialUsername || null)
   const [githubData, setGithubData] = useState<GitHubData | null>(null)
   const [flashcards, setFlashcards] = useState<Flashcard[]>([])
   const [loading, setLoading] = useState(false)
@@ -157,82 +157,44 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
   }
 
   const shareAsPNG = async () => {
-    const element = document.getElementById('github-profile-card')
-    if (!element) return;
+    if (!username) return;
 
+    // Create a shareable URL with the username
+    const shareableUrl = `${window.location.origin}/dashboard/${username}`;
+    
     try {
-      const canvas = await html2canvas(element, {
-        backgroundColor: '#1a1b1e',
-        scale: 2,
-        logging: true,
-        useCORS: true,
-        allowTaint: true,
-        onclone: (clonedDoc) => {
-          const clonedElement = clonedDoc.getElementById('github-profile-card')
-          if (clonedElement) {
-            clonedElement.style.transform = 'none'
-          }
-        }
-      });
-
-      canvas.toBlob(async (blob) => {
-        if (blob) {
-          const file = new File([blob], 'github-dashboard.png', { type: 'image/png' });
-          
-          const twitterShareUrl = `https://twitter.com/intent/tweet?text=Check out my GitHub stats!&url=${encodeURIComponent(window.location.href)}`;
-          
-          try {
-            // Try to share both the PNG and the URL
-            await navigator.share({
-              files: [file],
-              title: 'My GitHub Dashboard',
-              text: 'Check out my GitHub stats!',
-              url: window.location.href,
-            });
-          } catch {
-            try {
-              await navigator.share({
-                title: 'My GitHub Dashboard',
-                text: 'Check out my GitHub stats!',
-                url: window.location.href,
-              });
-            } catch {
-              // If all sharing attempts fail, open Twitter share dialog
-              window.open(twitterShareUrl, '_blank', 'width=550,height=420');
-            }
-
-            // Also trigger PNG download if sharing failed
-            const downloadUrl = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.download = 'github-dashboard.png';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(downloadUrl);
-          }
-        }
-      }, 'image/png', 1.0);
+      await navigator.clipboard.writeText(shareableUrl);
+      alert('Dashboard link copied to clipboard! 🎉');
     } catch (error) {
-      console.error('Error sharing as PNG:', error);
+      console.error('Error copying to clipboard:', error);
+      // Fallback for browsers that don't support clipboard API
+      const tempInput = document.createElement('input');
+      tempInput.value = shareableUrl;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+      alert('Dashboard link copied to clipboard! 🎉');
     }
   };
 
   return (
     <div className="min-h-screen p-4 relative overflow-hidden">
       <div className="w-full max-w-4xl mx-auto space-y-8">
-        <div className="flex flex-col items-center gap-4">
-          <Image 
-            src="/95c.png" 
-            alt="Chill Guy" 
-            className="w-20 h-20 object-contain"
-            width={80}
-            height={80}
-          />
-          <div className="w-full">
-            <UsernameInput onSubmit={handleUsernameSubmit} />
+        {!initialUsername && (
+          <div className="flex flex-col items-center gap-4">
+            <Image 
+              src="/95c.png" 
+              alt="Chill Guy" 
+              className="w-20 h-20 object-contain"
+              width={80}
+              height={80}
+            />
+            <div className="w-full">
+              <UsernameInput onSubmit={handleUsernameSubmit} />
+            </div>
           </div>
-        </div>
+        )}
 
         <AnimatePresence mode="wait">
           {loading ? (
@@ -268,6 +230,17 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
               transition={{ duration: 0.5 }}
               className="space-y-4"
             >
+              {initialUsername && (
+                <div className="text-center mb-4">
+                  <a 
+                    href="/"
+                    className="text-sm text-green-400 hover:text-green-300 transition-colors"
+                  >
+                    ✨ Create your own dashboard
+                  </a>
+                </div>
+              )}
+              
               <div className="container mx-auto px-2 py-1 max-w-3xl flex flex-wrap justify-between items-center gap-1.5">
                 <div className="flex items-center gap-2">
    
