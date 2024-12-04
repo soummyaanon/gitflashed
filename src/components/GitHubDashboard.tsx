@@ -11,7 +11,6 @@ import { Share2, Github, Download, RefreshCw } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import Image from 'next/image'
 import { ChillGitText } from '@/components/ui/DecorativeSVG'
-import Link from 'next/link';
 
 const CHILL_MESSAGES = [
   "Keeping it cool while coding awesome stuff! 😎",
@@ -182,20 +181,18 @@ export default function ResponsiveMinimalisticGitHubDashboard({ initialUsername 
   return (
     <div className="min-h-screen p-4 relative overflow-hidden">
       <div className="w-full max-w-4xl mx-auto space-y-8">
-        {!initialUsername && (
-          <div className="flex flex-col items-center gap-4">
-            <Image 
-              src="/95c.png" 
-              alt="Chill Guy" 
-              className="w-20 h-20 object-contain"
-              width={80}
-              height={80}
-            />
-            <div className="w-full">
-              <UsernameInput onSubmit={handleUsernameSubmit} />
-            </div>
+        <div className="flex flex-col items-center gap-4">
+          <Image 
+            src="/95c.png" 
+            alt="Chill Guy" 
+            className="w-20 h-20 object-contain"
+            width={80}
+            height={80}
+          />
+          <div className="w-full">
+            <UsernameInput onSubmit={handleUsernameSubmit} />
           </div>
-        )}
+        </div>
 
         <AnimatePresence mode="wait">
           {loading ? (
@@ -231,17 +228,6 @@ export default function ResponsiveMinimalisticGitHubDashboard({ initialUsername 
               transition={{ duration: 0.5 }}
               className="space-y-4"
             >
-              {initialUsername && (
-                <div className="text-center mb-4">
-                  <Link 
-                    href="/"
-                    className="text-sm text-green-400 hover:text-green-300 transition-colors"
-                  >
-                    ✨ Create your own dashboard
-                  </Link>
-                </div>
-              )}
-              
               <div className="container mx-auto px-2 py-1 max-w-3xl flex flex-wrap justify-between items-center gap-1.5">
                 <div className="flex items-center gap-2">
    
