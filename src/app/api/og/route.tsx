@@ -16,6 +16,12 @@ export async function GET(req: NextRequest) {
     const response = await fetch(`https://api.github.com/users/${username}`);
     const userData = await response.json();
 
+    // Fetch and prepare the avatar image
+    const avatarResponse = await fetch(userData.avatar_url);
+    const avatarArrayBuffer = await avatarResponse.arrayBuffer();
+    const avatarBase64 = Buffer.from(avatarArrayBuffer).toString('base64');
+    const avatarDataUrl = `data:image/jpeg;base64,${avatarBase64}`;
+
     return new ImageResponse(
       (
         <div
@@ -55,7 +61,7 @@ export async function GET(req: NextRequest) {
           >
             {/* Avatar */}
             <img
-              src={userData.avatar_url}
+              src={avatarDataUrl}
               alt={username}
               style={{
                 width: '120px',
