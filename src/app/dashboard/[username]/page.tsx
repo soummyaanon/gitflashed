@@ -1,14 +1,15 @@
 import { Metadata } from 'next';
 import ResponsiveMinimalisticGitHubDashboard from '@/components/GitHubDashboard';
 
-type Props = {
+interface PageProps {
   params: {
     username: string;
   };
-};
+  searchParams: { [key: string]: string | string[] | undefined };
+}
 
 // Generate dynamic metadata for each user's dashboard
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { username } = params;
 
   return {
@@ -35,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function DashboardPage({ params }: Props) {
+export default function DashboardPage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black py-8">
       <div className="max-w-4xl mx-auto">
