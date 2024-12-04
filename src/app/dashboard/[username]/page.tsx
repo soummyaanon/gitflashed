@@ -1,4 +1,4 @@
-'use client'
+
 
 import { Metadata } from 'next';
 import ResponsiveMinimalisticGitHubDashboard from '@/components/GitHubDashboard';
