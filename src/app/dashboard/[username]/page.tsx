@@ -2,12 +2,14 @@ import { Metadata } from 'next';
 import ResponsiveMinimalisticGitHubDashboard from '@/components/GitHubDashboard';
 
 type Props = {
-  params: { username: string };
-  searchParams: { [key: string]: string | string[] | undefined };
+  params: {
+    username: string;
+  };
 };
 
-export async function generateMetadata(props: Props): Promise<Metadata> {
-  const { username } = props.params;
+// Generate dynamic metadata for each user's dashboard
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { username } = params;
 
   return {
     title: `${username}'s GitHub Dashboard | ChillGits`,
@@ -17,7 +19,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
       description: `Check out ${username}'s GitHub stats and chill factor on ChillGits!`,
       images: [
         {
-          url: `/api/og?username=${username}`,
+          url: `/api/og?username=${username}`, // You'll need to create this API route for dynamic OG images
           width: 1200,
           height: 630,
           alt: `${username}'s GitHub Dashboard`,
@@ -33,7 +35,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   };
 }
 
-export default function Page({ params }: Props) {
+export default function DashboardPage({ params }: Props) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black">
       <ResponsiveMinimalisticGitHubDashboard initialUsername={params.username} />
