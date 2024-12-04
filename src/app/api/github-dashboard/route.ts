@@ -7,10 +7,12 @@ const CACHE_TTL = 300 // 5 minutes
 // Initialize Redis with proper error handling
 let redis: Redis | null = null
 try {
-  redis = new Redis({
-    url: process.env.REDIS_URL ? `https://${process.env.REDIS_URL}` : '',
-    token: process.env.REDIS_TOKEN || ''
-  })
+  if (process.env.REDIS_URL && process.env.REDIS_TOKEN) {
+    redis = new Redis({
+      url: `https://${process.env.REDIS_URL}`,
+      token: process.env.REDIS_TOKEN
+    })
+  }
 } catch (error) {
   console.error('Redis initialization error:', error)
 }
@@ -29,8 +31,16 @@ export async function GET(request: NextRequest) {
     if (redis && !forceRefresh) {
       try {
         const cachedData = await redis.get(`github:${username}`)
-        if (cachedData) {
-          return NextResponse.json(JSON.parse(cachedData as string))
+        if (cachedData && typeof cachedData === 'string') {
+          try {
+            const parsedData = JSON.parse(cachedData)
+            if (parsedData && typeof parsedData === 'object') {
+              return NextResponse.json(parsedData)
+            }
+          } catch (parseError) {
+            console.error('Redis data parse error:', parseError)
+            // Invalid JSON in cache, will fetch fresh data
+          }
         }
       } catch (cacheError) {
         console.error('Redis cache error:', cacheError)
@@ -44,7 +54,8 @@ export async function GET(request: NextRequest) {
     // Try to cache the new data if Redis is available
     if (redis) {
       try {
-        await redis.set(`github:${username}`, JSON.stringify(githubData), {
+        const dataToCache = JSON.stringify(githubData)
+        await redis.set(`github:${username}`, dataToCache, {
           ex: CACHE_TTL
         })
       } catch (cacheError) {
