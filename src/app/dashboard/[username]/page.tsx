@@ -1,20 +1,21 @@
-
-
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 import ResponsiveMinimalisticGitHubDashboard from '@/components/GitHubDashboard';
 
+// Define the shape of the page parameters
+type PageParams = {
+  username: string;
+};
+
+// Define the page props using Next.js conventions
 type Props = {
-  params: {
-    username: string;
-  };
-  searchParams: Record<string, string | string[] | undefined>;
+  params: PageParams;
+  searchParams: { [key: string]: string | string[] | undefined };
 };
 
 // Generate dynamic metadata for each user's dashboard
-export async function generateMetadata(
-  { params }: Props
-): Promise<Metadata> {
-  const { username } = params;
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const { username } = props.params;
 
   return {
     title: `${username}'s GitHub Dashboard | ChillGits`,
@@ -40,11 +41,16 @@ export async function generateMetadata(
   };
 }
 
-export default async function DashboardPage({ params }: Props) {
+// Define the page component
+export default function Page(props: Props) {
+  const { username } = props.params;
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black py-8">
       <div className="max-w-4xl mx-auto">
-        <ResponsiveMinimalisticGitHubDashboard initialUsername={params.username} />
+        <Suspense fallback={<div className="text-center text-white">Loading...</div>}>
+          <ResponsiveMinimalisticGitHubDashboard initialUsername={username} />
+        </Suspense>
       </div>
     </div>
   );
