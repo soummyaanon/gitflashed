@@ -10,6 +10,7 @@ import { GitHubData, Flashcard } from '@/types'
 import { Share2, Github, Download, RefreshCw } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import Image from 'next/image'
+import { ChillGitText } from '@/components/ui/DecorativeSVG'
 
 const CHILL_MESSAGES = [
   "Keeping it cool while coding awesome stuff! 😎",
@@ -26,32 +27,35 @@ const CHILL_MESSAGES = [
 ];
 
 const itemAnimation: Variants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 20, scale: 0.9 },
   show: { 
     opacity: 1, 
     y: 0, 
+    scale: 1,
     transition: { 
       type: "spring", 
       stiffness: 300, 
-      damping: 24 
+      damping: 24,
+      duration: 0.5
     } 
   }
 }
 
 const MotionCard = motion(Card)
+MotionCard.defaultProps = {
+  whileHover: { scale: 1.02, transition: { duration: 0.2 } },
+  whileTap: { scale: 0.98 }
+}
 
 function downloadAsImage() {
   const element = document.getElementById('github-profile-card')
   if (!element) return
 
   try {
-    const originalBackground = element.style.background
-    element.style.background = '#1a1b1e'
-    
     html2canvas(element, {
       backgroundColor: '#1a1b1e',
       scale: 2,
-      logging: false,
+      logging: true,
       useCORS: true,
       allowTaint: true,
       onclone: (clonedDoc) => {
@@ -61,8 +65,6 @@ function downloadAsImage() {
         }
       }
     }).then(canvas => {
-      element.style.background = originalBackground
-
       const image = canvas.toDataURL('image/png', 1.0)
       const link = document.createElement('a')
       link.download = 'github-profile.png'
@@ -77,6 +79,10 @@ function downloadAsImage() {
 const getRandomChillPercentage = () => {
   return Math.floor(Math.random() * (20) + 80); // Returns a number between 80-100
 }
+
+const glassStyle = "backdrop-filter backdrop-blur-lg bg-opacity-20 bg-black/30 shadow-xl"
+const neonBorderStyle = "animate-border-pulse border border-green-500/50 shadow-[0_0_15px_rgba(34,197,94,0.2)]"
+const decorativeStyle = "before:absolute before:inset-0 before:bg-gradient-to-br before:from-green-500/5 before:to-transparent before:z-0"
 
 export default function ResponsiveMinimalisticGitHubDashboard() {
   const [username, setUsername] = useState<string | null>(null)
@@ -155,13 +161,10 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
     if (!element) return;
 
     try {
-      const originalBackground = element.style.background
-      element.style.background = '#1a1b1e'
-
       const canvas = await html2canvas(element, {
         backgroundColor: '#1a1b1e',
         scale: 2,
-        logging: false,
+        logging: true,
         useCORS: true,
         allowTaint: true,
         onclone: (clonedDoc) => {
@@ -171,8 +174,6 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
           }
         }
       });
-
-      element.style.background = originalBackground
 
       canvas.toBlob(async (blob) => {
         if (blob) {
@@ -218,7 +219,7 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
   };
 
   return (
-    <div className="min-h-screen p-4 bg-transparent">
+    <div className="min-h-screen p-4 relative overflow-hidden">
       <div className="w-full max-w-4xl mx-auto space-y-8">
         <div className="flex flex-col items-center gap-4">
           <Image 
@@ -272,41 +273,48 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
    
                 </div>
                 
-                <div className="flex gap-1.5">
+                <div className="flex gap-2">
                   <motion.button 
                     onClick={regenerateFlatter} 
                     disabled={isRegenerating}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center gap-2 px-4 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <RefreshCw size={14} className={isRegenerating ? "animate-spin" : ""} />
-                    <span className="text-sm">New Flatter</span>
+                    <RefreshCw size={16} className={isRegenerating ? "animate-spin" : ""} />
+                    <span className="text-sm whitespace-nowrap">New Flatter</span>
                   </motion.button>
                   <motion.button 
                     onClick={downloadAsImage} 
-                    className="flex items-center gap-1.5 px-4 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30"
+                    className="flex items-center gap-2 px-4 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30 transition-colors"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <Download size={30} />
-                    <span className="text-sm">Save</span>
+                    <Download size={16} />
+                    <span className="text-sm whitespace-nowrap">Save</span>
                   </motion.button>
                   <motion.button 
                     onClick={shareAsPNG}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30"
+                    className="flex items-center gap-2 px-4 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30 transition-colors"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <Share2 size={14} />
-                    <span className="text-sm">Share</span>
+                    <Share2 size={16} />
+                    <span className="text-sm whitespace-nowrap">Share</span>
                   </motion.button>
                 </div>
               </div>
 
-              <div id="github-profile-card" ref={dashboardRef} className="relative bg-[#1a1b1e]/90 rounded-lg p-4 border border-green-500/20">
-                <div className="space-y-4">
-                  <MotionCard variants={itemAnimation} className="p-3 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-green-500/20">
+              <div 
+                id="github-profile-card" 
+                ref={dashboardRef} 
+                className={`relative rounded-lg p-4 ${glassStyle} ${neonBorderStyle} ${decorativeStyle}`}
+              >
+                <div className="relative z-10 space-y-4">
+                  <MotionCard 
+                    variants={itemAnimation} 
+                    className={`p-3 rounded-lg ${glassStyle} hover:shadow-green-500/20 hover:shadow-lg transition-all duration-300 ${neonBorderStyle}`}
+                  >
                     <motion.div className="flex flex-col sm:flex-row items-center sm:items-start gap-3">
                       <Avatar className="w-14 h-14 border-2 border-green-500">
                         <AvatarImage src={githubData.user.avatar_url} alt={githubData.user.name || githubData.user.login} />
@@ -337,7 +345,10 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
                   <AnimatedAppreciationCard content={flashcards[0]?.content} />
 
                   <motion.div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <MotionCard variants={itemAnimation} className="p-4 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-green-500/20 hover:border-green-500/30 transition-all duration-300">
+                    <MotionCard 
+                      variants={itemAnimation} 
+                      className={`p-4 rounded-lg ${glassStyle} hover:shadow-green-500/20 hover:shadow-lg transition-all duration-300 ${neonBorderStyle}`}
+                    >
                       <CardHeader className="p-0">
                         <CardTitle className="text-base mb-4 text-green-400 flex items-center gap-3">
                           <Image 
@@ -349,34 +360,54 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
                           />
                           <div className="flex flex-col gap-1">
                             <div className="flex items-baseline gap-2">
-                              <span>@{githubData.user.login} is a</span>
+                              <span>@{githubData.user.login} is</span>
                               <motion.span 
-                                className="text-xl font-bold bg-gradient-to-r from-green-400 to-emerald-300 bg-clip-text text-transparent"
+                                className="
+                                  text-3xl
+                                  font-bold 
+                                  text-green-400
+                                  tracking-wider
+                                  px-1
+                                "
                                 initial={{ scale: 0.9 }}
                                 animate={{ scale: 1 }}
                                 transition={{ duration: 0.5 }}
                               >
-                                {getRandomChillPercentage()}% 
+                                {getRandomChillPercentage()}%
                               </motion.span>
+                              <span className="text-green-300">Chill</span>
                             </div>
-                            <span className="text-lg text-green-300/90">Chill Developer</span>
                           </div>
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="p-0">
-                        <div className="flex items-center justify-center mt-2">
-                          <motion.p 
-                            className="text-sm text-gray-300 italic"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.2 }}
-                          >
-                            {CHILL_MESSAGES[Math.floor(Math.random() * CHILL_MESSAGES.length)]}
-                          </motion.p>
+                      <CardContent className="p-0 mt-2">
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center justify-center">
+                            <motion.p 
+                              className="text-sm text-gray-300 italic"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: 0.2 }}
+                            >
+                              {CHILL_MESSAGES[Math.floor(Math.random() * CHILL_MESSAGES.length)]}
+                            </motion.p>
+                          </div>
                         </div>
                       </CardContent>
                     </MotionCard>
                   </motion.div>
+                </div>
+                
+                <div className="absolute bottom-4 right-4 z-20">
+                  <ChillGitText 
+                    className="
+                      w-32 h-auto
+                      text-green-400/40
+                      transform-gpu
+                      hover:text-green-400/60
+                      transition-colors duration-300
+                    "
+                  />
                 </div>
               </div>
             </motion.div>
@@ -390,47 +421,53 @@ export default function ResponsiveMinimalisticGitHubDashboard() {
 function AnimatedAppreciationCard({ content }: { content?: string }) {
   return (
     <MotionCard 
-      className="p-4 sm:p-6 bg-gray-800/30 backdrop-blur-sm rounded-xl border border-green-500/20"
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5 }}
+      className={`p-4 sm:p-6 rounded-xl relative overflow-hidden ${glassStyle} ${neonBorderStyle} ${decorativeStyle}`}
     >
-      <CardHeader className="p-0">
-        <CardTitle className="text-lg sm:text-xl mb-4 text-green-400 flex items-center gap-2">
-          <Image 
-            src="/95c.png" 
-            alt="Chill Guy" 
-            className="w-6 h-6 object-contain"
-            width={24}
-            height={24}
-          />
-          Chill Guy Flatter
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-0">
-        <div className="text-sm sm:text-md text-gray-300 leading-relaxed">
-          <div className="relative p-2 sm:p-4">
-            <motion.p 
-              className="font-medium"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-            >
-              {content || "Loading your profile..."}
-            </motion.p>
+      <div className="relative z-10">
+        <CardHeader className="p-0">
+          <CardTitle className="text-lg sm:text-xl mb-4 text-green-400 flex items-center gap-2">
+            <Image 
+              src="/95c.png" 
+              alt="Chill Guy" 
+              className="w-6 h-6 object-contain"
+              width={24}
+              height={24}
+            />
+            Chill Guy Flatter
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="text-sm sm:text-md text-gray-300 leading-relaxed">
+            <div className="relative p-2 sm:p-4">
+              {content?.split(' ').map((word, index) => (
+                <motion.span
+                  key={index}
+                  className="inline-block mr-1"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05, duration: 0.5 }}
+                >
+                  {word}
+                </motion.span>
+              )) || "Loading your profile..."}
+            </div>
           </div>
-        </div>
-      </CardContent>
+        </CardContent>
+      </div>
     </MotionCard>
   )
 }
 
 function ResponsiveDashboardSkeleton() {
   return (
-    <div className="container mx-auto px-4 max-w-3xl">
-      <Card className="p-4 sm:p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
-        <div className="space-y-4">
-          <Card className="p-4 sm:p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
+    <div className="container mx-auto px-4 max-w-3xl relative">
+      <Card 
+        className={`p-4 sm:p-6 rounded-xl relative overflow-hidden ${glassStyle} ${neonBorderStyle} ${decorativeStyle}`}
+      >
+        <div className="space-y-4 relative z-10">
+          <Card 
+            className={`p-4 sm:p-6 rounded-xl ${glassStyle} ${neonBorderStyle}`}
+          >
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
               <Skeleton className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-green-700/30 animate-pulse" />
               <div className="space-y-3 text-center sm:text-left">
@@ -441,7 +478,9 @@ function ResponsiveDashboardSkeleton() {
             </div>
           </Card>
 
-          <Card className="p-4 sm:p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-green-500/20">
+          <Card 
+            className={`p-4 sm:p-6 rounded-xl ${glassStyle} ${neonBorderStyle}`}
+          >
             <Skeleton className="h-6 sm:h-8 w-36 sm:w-48 mb-4 sm:mb-6 bg-green-700/30 animate-pulse" />
             <Skeleton className="h-36 sm:h-48 w-full bg-green-700/30 animate-pulse" />
           </Card>
