@@ -520,4 +520,3 @@ function ResponsiveDashboardSkeleton() {
     </div>
   )
 }
-
