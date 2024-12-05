@@ -231,53 +231,49 @@ export default function ResponsiveMinimalisticGitHubDashboard({ initialUsername 
               transition={{ duration: 0.5 }}
               className="space-y-4"
             >
-              {initialUsername && (
+              {!initialUsername ? (
+                <div className="container mx-auto px-2 py-1 max-w-3xl flex flex-wrap justify-between items-center gap-1.5">
+                  <div className="flex gap-2">
+                    <motion.button 
+                      onClick={regenerateFlatter} 
+                      disabled={isRegenerating}
+                      className="flex items-center gap-2 px-4 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <RefreshCw size={16} className={isRegenerating ? "animate-spin" : ""} />
+                      <span className="text-sm whitespace-nowrap">New Flatter</span>
+                    </motion.button>
+                    <motion.button 
+                      onClick={downloadAsImage} 
+                      className="flex items-center gap-2 px-4 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30 transition-colors"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Download size={16} />
+                      <span className="text-sm whitespace-nowrap">Save</span>
+                    </motion.button>
+                    <motion.button 
+                      onClick={shareAsPNG}
+                      className="flex items-center gap-2 px-4 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30 transition-colors"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Share2 size={16} />
+                      <span className="text-sm whitespace-nowrap">Share</span>
+                    </motion.button>
+                  </div>
+                </div>
+              ) : (
                 <div className="text-center mb-4">
                   <Link 
                     href="/"
-                    className="text-sm text-green-400 hover:text-green-300 transition-colors"
+                    className="inline-flex items-center gap-2 px-6 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30 transition-colors text-green-400 hover:text-green-300"
                   >
-                    ✨ Create your own dashboard
+                    <span>✨ Create Your Own CHILLGITS</span>
                   </Link>
                 </div>
               )}
-              
-              <div className="container mx-auto px-2 py-1 max-w-3xl flex flex-wrap justify-between items-center gap-1.5">
-                <div className="flex items-center gap-2">
-   
-                </div>
-                
-                <div className="flex gap-2">
-                  <motion.button 
-                    onClick={regenerateFlatter} 
-                    disabled={isRegenerating}
-                    className="flex items-center gap-2 px-4 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <RefreshCw size={16} className={isRegenerating ? "animate-spin" : ""} />
-                    <span className="text-sm whitespace-nowrap">New Flatter</span>
-                  </motion.button>
-                  <motion.button 
-                    onClick={downloadAsImage} 
-                    className="flex items-center gap-2 px-4 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30 transition-colors"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Download size={16} />
-                    <span className="text-sm whitespace-nowrap">Save</span>
-                  </motion.button>
-                  <motion.button 
-                    onClick={shareAsPNG}
-                    className="flex items-center gap-2 px-4 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30 transition-colors"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Share2 size={16} />
-                    <span className="text-sm whitespace-nowrap">Share</span>
-                  </motion.button>
-                </div>
-              </div>
 
               <div 
                 id="github-profile-card" 
