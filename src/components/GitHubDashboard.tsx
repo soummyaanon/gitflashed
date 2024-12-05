@@ -77,8 +77,37 @@ function downloadAsImage() {
   }
 }
 
-const getRandomChillPercentage = () => {
-  return Math.floor(Math.random() * (20) + 80); // Returns a number between 80-100
+function calculateChillPercentage(githubData: GitHubData): number {
+  if (!githubData || !githubData.user) return 80 // Default fallback
+
+  const {
+    public_repos = 0,
+    followers = 0,
+    following = 0,
+  } = githubData.user
+
+  // Calculate repository activity (35% weight)
+  const repoScore = Math.min(public_repos / 50, 1) * 35
+
+  // Calculate social engagement (35% weight)
+  const socialScore = Math.min(
+    ((followers * 1.5) + following) / 150,
+    1
+  ) * 35
+
+  // Calculate contribution consistency (30% weight)
+  const activityScore = Math.min(
+    (githubData.pinnedRepos?.length || 0) / 6 +
+    (githubData.recentActivity?.length || 0) / 5,
+    1
+  ) * 30
+
+  const baseScore = repoScore + socialScore + activityScore
+
+
+  const normalizedScore = 80 + (baseScore / 100) * 20
+
+  return Math.round(normalizedScore)
 }
 
 const glassStyle = "backdrop-filter backdrop-blur-lg bg-opacity-20 bg-black/30 shadow-xl"
@@ -153,7 +182,7 @@ export default function ResponsiveMinimalisticGitHubDashboard({ initialUsername 
       const githubData = await githubResponse.json();
       setGithubData(githubData);
       
-      setChillPercentage(Math.floor(Math.random() * (20) + 80))
+      setChillPercentage(calculateChillPercentage(githubData))
       setChillMessage(CHILL_MESSAGES[Math.floor(Math.random() * CHILL_MESSAGES.length)])
   
       const flashcardsResponse = await fetch(`/api/generate-flashcards?username=${username}`);
