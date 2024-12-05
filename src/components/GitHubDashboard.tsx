@@ -13,19 +13,60 @@ import Image from 'next/image'
 import { ChillGitText } from '@/components/ui/DecorativeSVG'
 import Link from 'next/link'
 
-const CHILL_MESSAGES = [
-  "Keeping it cool while coding awesome stuff! 😎",
-  "Debugging with a smile! 🌟",
-  "Writing code and vibing! 🎵",
-  "Turning coffee into code, chillingly! ☕",
-  "Just another day in paradise... coding! 🌴",
-  "Stay cool, keep coding! 🧊",
-  "Crafting digital magic, no stress! ✨",
-  "Chillin' in the code zone! 🚀",
-  "Making bugs disappear, smoothly! 🪄",
-  "Code. Relax. Repeat. 🎮"
-  
-];
+const CHILL_MESSAGES = {
+  legendary: [
+    { 
+      quote: "🎉 LEGENDARY CHILL LEVEL ACHIEVED! You're the Bob Ross of coding! 🎨",
+      avatar: "pixel-art"
+    },
+    { 
+      quote: "🌟 YOU'RE THE ZEN MASTER OF GITHUB! Even Linus would be proud! 🐧",
+      avatar: "bottts"
+    },
+    { 
+      quote: "🎸 PEAK CHILL VIBES DETECTED! You're the Django of development! 🎵",
+      avatar: "fun-emoji"
+    },
+    { 
+      quote: "🏆 MAXIMUM CHILL STATUS UNLOCKED! You're like Docker - containing all the cool! 🐳",
+      avatar: "adventurer"
+    }
+  ],
+  regular: [
+    {
+      quote: "Keeping it cool like Python's whitespace! 🐍",
+      avatar: "pixel-art"
+    },
+    {
+      quote: "Debugging with the chill of a thousand clouds! ☁️",
+      avatar: "bottts"
+    },
+    {
+      quote: "Your code is as smooth as a well-cached Redis instance! 🚀",
+      avatar: "adventurer"
+    },
+    {
+      quote: "Git pushing through life with style! 🎮",
+      avatar: "fun-emoji"
+    },
+    {
+      quote: "Your commits are like haikus - simple and beautiful! 📝",
+      avatar: "lorelei"
+    },
+    {
+      quote: "Floating like a butterfly, coding like a Bee(language)! 🐝",
+      avatar: "big-smile"
+    },
+    {
+      quote: "You're like npm - packaging awesomeness! 📦",
+      avatar: "pixel-art"
+    },
+    {
+      quote: "Your code reviews spread joy like React components! ⚛️",
+      avatar: "bottts"
+    }
+  ]
+};
 
 const itemAnimation: Variants = {
   hidden: { opacity: 0, y: 20, scale: 0.9 },
@@ -147,6 +188,25 @@ const secondaryButtonStyle = `
   hover:shadow-black/10
 `
 
+// Add this new function to generate random avatar URL
+const getRandomAvatar = (seed: string, style: "pixel-art" | "adventurer" | "big-smile" | "bottts" | "fun-emoji" | "lorelei") => {
+  return `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}`;
+};
+
+// Update the getChillMessage function to return both message and avatar
+function getChillMessage(percentage: number, username: string): { 
+  message: string; 
+  avatarUrl: string; 
+} {
+  const messages = percentage >= 99 ? CHILL_MESSAGES.legendary : CHILL_MESSAGES.regular;
+  const randomChoice = messages[Math.floor(Math.random() * messages.length)];
+  
+  return {
+    message: randomChoice.quote,
+    avatarUrl: getRandomAvatar(username + Date.now(), randomChoice.avatar as "pixel-art" | "adventurer" | "big-smile" | "bottts" | "fun-emoji" | "lorelei")
+  };
+}
+
 export default function ResponsiveMinimalisticGitHubDashboard({ initialUsername }: { initialUsername?: string }) {
   const [username, setUsername] = useState<string | null>(initialUsername || null)
   const [githubData, setGithubData] = useState<GitHubData | null>(null)
@@ -156,6 +216,7 @@ export default function ResponsiveMinimalisticGitHubDashboard({ initialUsername 
   const [isRegenerating, setIsRegenerating] = useState(false)
   const [chillPercentage, setChillPercentage] = useState<number>(0)
   const [chillMessage, setChillMessage] = useState<string>('')
+  const [messageAvatar, setMessageAvatar] = useState<string>('')
   const dashboardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -183,7 +244,9 @@ export default function ResponsiveMinimalisticGitHubDashboard({ initialUsername 
       setGithubData(githubData);
       
       setChillPercentage(calculateChillPercentage(githubData))
-      setChillMessage(CHILL_MESSAGES[Math.floor(Math.random() * CHILL_MESSAGES.length)])
+      const { message, avatarUrl } = getChillMessage(calculateChillPercentage(githubData), githubData.user.login);
+      setChillMessage(message)
+      setMessageAvatar(avatarUrl)
   
       const flashcardsResponse = await fetch(`/api/generate-flashcards?username=${username}`);
       if (!flashcardsResponse.ok) {
@@ -417,21 +480,27 @@ export default function ResponsiveMinimalisticGitHubDashboard({ initialUsername 
                             className="w-12 h-12 object-contain"
                             width={48}
                             height={48}
+                            priority
                           />
                           <div className="flex flex-col gap-1">
                             <div className="flex items-baseline gap-2">
                               <span>@{githubData.user.login} is</span>
                               <motion.span 
-                                className="
+                                className={`
                                   text-3xl
                                   font-bold 
-                                  text-green-400
+                                  ${chillPercentage >= 99 ? 'text-green-300 animate-pulse' : 'text-green-400'}
                                   tracking-wider
                                   px-1
-                                "
+                                `}
                                 initial={{ scale: 0.9 }}
-                                animate={{ scale: 1 }}
-                                transition={{ duration: 0.5 }}
+                                animate={{ 
+                                  scale: chillPercentage >= 99 ? [1, 1.1, 1] : 1,
+                                  transition: {
+                                    repeat: chillPercentage >= 99 ? Infinity : 0,
+                                    duration: 2
+                                  }
+                                }}
                               >
                                 {chillPercentage}%
                               </motion.span>
@@ -442,9 +511,20 @@ export default function ResponsiveMinimalisticGitHubDashboard({ initialUsername 
                       </CardHeader>
                       <CardContent className="p-0 mt-2">
                         <div className="flex flex-col gap-2">
-                          <div className="flex items-center justify-center">
+                          <div className="flex items-center justify-center gap-3">
+                            <Image 
+                              src={messageAvatar}
+                              alt="Mood Avatar"
+                              width={32}
+                              height={32}
+                              className="rounded-full w-8 h-8"
+                              priority
+                            />
                             <motion.p 
-                              className="text-sm text-gray-300 italic"
+                              className={`
+                                text-sm 
+                                ${chillPercentage >= 99 ? 'text-green-300 font-semibold' : 'text-gray-300 italic'}
+                              `}
                               initial={{ opacity: 0 }}
                               animate={{ opacity: 1 }}
                               transition={{ delay: 0.2 }}
@@ -492,6 +572,7 @@ function AnimatedAppreciationCard({ content }: { content?: string }) {
               className="w-6 h-6 object-contain"
               width={24}
               height={24}
+              priority
             />
             Chill Guy Flatter
           </CardTitle>
