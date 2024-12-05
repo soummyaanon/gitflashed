@@ -11,6 +11,7 @@ import { Share2, Github, Download, RefreshCw } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import Image from 'next/image'
 import { ChillGitText } from '@/components/ui/DecorativeSVG'
+import Link from 'next/link'
 
 const CHILL_MESSAGES = [
   "Keeping it cool while coding awesome stuff! 😎",
@@ -232,12 +233,12 @@ export default function ResponsiveMinimalisticGitHubDashboard({ initialUsername 
             >
               {initialUsername && (
                 <div className="text-center mb-4">
-                  <a 
+                  <Link 
                     href="/"
                     className="text-sm text-green-400 hover:text-green-300 transition-colors"
                   >
                     ✨ Create your own dashboard
-                  </a>
+                  </Link>
                 </div>
               )}
               
@@ -303,14 +304,14 @@ export default function ResponsiveMinimalisticGitHubDashboard({ initialUsername 
                         </motion.p>
                       </div>
                       <div className="hidden sm:block">
-                        <a 
+                        <Link 
                           href={`https://github.com/${githubData.user.login}`} 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="hover:text-green-400 transition-colors"
                         >
                           <Github size={24} className="text-green-400/30" />
-                        </a>
+                        </Link>
                       </div>
                     </motion.div>
                   </MotionCard>

@@ -1,11 +1,12 @@
-"use client"
+
 
 import { Metadata } from 'next';
 import ResponsiveMinimalisticGitHubDashboard from '@/components/GitHubDashboard';
 import { Footer } from '@/components/Footer';
 import { Github, Plus } from 'lucide-react';
 import Image from 'next/image';
-import Head from 'next/head';
+
+
 
 type Props = {
   params: Promise<{ username: string }>;
