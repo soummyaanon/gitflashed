@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { UsernameInput } from './UserInput'
 import { GitHubData, Flashcard } from '@/types'
-import { Share2, Github, Download, RefreshCw } from 'lucide-react'
+import { Share2, Github, Download, RefreshCw, Plus } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import Image from 'next/image'
 import { ChillGitText } from '@/components/ui/DecorativeSVG'
@@ -85,6 +85,39 @@ const glassStyle = "backdrop-filter backdrop-blur-lg bg-opacity-20 bg-black/30 s
 const neonBorderStyle = "animate-border-pulse border border-green-500/50 shadow-[0_0_15px_rgba(34,197,94,0.2)]"
 const decorativeStyle = "before:absolute before:inset-0 before:bg-gradient-to-br before:from-green-500/5 before:to-transparent before:z-0"
 
+const buttonBaseStyle = `
+  flex items-center gap-2 
+  px-4 py-2.5 
+  rounded-lg
+  font-medium
+  text-sm
+  transition-all duration-200
+  backdrop-filter backdrop-blur-sm
+  shadow-sm
+  border border-green-500/10
+`
+
+const primaryButtonStyle = `
+  ${buttonBaseStyle}
+  bg-green-500/10
+  hover:bg-green-500/20
+  text-green-400
+  hover:text-green-300
+  hover:shadow-md
+  hover:shadow-green-500/10
+  hover:border-green-500/20
+`
+
+const secondaryButtonStyle = `
+  ${buttonBaseStyle}
+  bg-gray-800/40
+  hover:bg-gray-800/60
+  text-gray-300
+  hover:text-gray-200
+  hover:shadow-md
+  hover:shadow-black/10
+`
+
 export default function ResponsiveMinimalisticGitHubDashboard({ initialUsername }: { initialUsername?: string }) {
   const [username, setUsername] = useState<string | null>(initialUsername || null)
   const [githubData, setGithubData] = useState<GitHubData | null>(null)
@@ -92,6 +125,8 @@ export default function ResponsiveMinimalisticGitHubDashboard({ initialUsername 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isRegenerating, setIsRegenerating] = useState(false)
+  const [chillPercentage, setChillPercentage] = useState<number>(0)
+  const [chillMessage, setChillMessage] = useState<string>('')
   const dashboardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -117,6 +152,9 @@ export default function ResponsiveMinimalisticGitHubDashboard({ initialUsername 
   
       const githubData = await githubResponse.json();
       setGithubData(githubData);
+      
+      setChillPercentage(Math.floor(Math.random() * (20) + 80))
+      setChillMessage(CHILL_MESSAGES[Math.floor(Math.random() * CHILL_MESSAGES.length)])
   
       const flashcardsResponse = await fetch(`/api/generate-flashcards?username=${username}`);
       if (!flashcardsResponse.ok) {
@@ -232,45 +270,68 @@ export default function ResponsiveMinimalisticGitHubDashboard({ initialUsername 
               className="space-y-4"
             >
               {!initialUsername ? (
-                <div className="container mx-auto px-2 py-1 max-w-3xl flex flex-wrap justify-between items-center gap-1.5">
-                  <div className="flex gap-2">
-                    <motion.button 
-                      onClick={regenerateFlatter} 
-                      disabled={isRegenerating}
-                      className="flex items-center gap-2 px-4 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <RefreshCw size={16} className={isRegenerating ? "animate-spin" : ""} />
-                      <span className="text-sm whitespace-nowrap">New Flatter</span>
-                    </motion.button>
+                <div className="container mx-auto px-2 py-1 max-w-3xl flex flex-wrap justify-end items-center gap-3">
+                  <motion.button 
+                    onClick={regenerateFlatter} 
+                    disabled={isRegenerating}
+                    className={`${primaryButtonStyle} ${isRegenerating ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <RefreshCw size={16} className={`${isRegenerating ? 'animate-spin' : ''} transition-transform`} />
+                    <span className="whitespace-nowrap">New Flatter</span>
+                  </motion.button>
+
+                  <div className="flex gap-3">
                     <motion.button 
                       onClick={downloadAsImage} 
-                      className="flex items-center gap-2 px-4 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30 transition-colors"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                      className={secondaryButtonStyle}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      title="Save as Image"
                     >
-                      <Download size={16} />
-                      <span className="text-sm whitespace-nowrap">Save</span>
+                      <Download size={16} className="transition-transform group-hover:translate-y-0.5" />
+                      <span className="whitespace-nowrap">Save</span>
                     </motion.button>
+
                     <motion.button 
                       onClick={shareAsPNG}
-                      className="flex items-center gap-2 px-4 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30 transition-colors"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                      className={secondaryButtonStyle}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      title="Share Profile"
                     >
-                      <Share2 size={16} />
-                      <span className="text-sm whitespace-nowrap">Share</span>
+                      <Share2 size={16} className="transition-transform group-hover:rotate-12" />
+                      <span className="whitespace-nowrap">Share</span>
                     </motion.button>
                   </div>
                 </div>
               ) : (
-                <div className="text-center mb-4">
+                <div className="text-center mb-6">
                   <Link 
                     href="/"
-                    className="inline-flex items-center gap-2 px-6 py-2 bg-green-500/20 rounded-lg hover:bg-green-500/30 transition-colors text-green-400 hover:text-green-300"
+                    className={`
+                      inline-flex items-center gap-2 
+                      px-6 py-3
+                      rounded-lg
+                      font-medium
+                      bg-green-500/10
+                      hover:bg-green-500/20
+                      text-green-400
+                      hover:text-green-300
+                      transition-all duration-200
+                      shadow-sm
+                      hover:shadow-md
+                      hover:shadow-green-500/10
+                      border border-green-500/10
+                      hover:border-green-500/20
+                      backdrop-filter backdrop-blur-sm
+                    `}
                   >
-                    <span>✨ Create Your Own CHILLGITS</span>
+                    <span className="flex items-center gap-2">
+                      <Plus size={16} className="transition-transform group-hover:rotate-90" />
+                      ✨ Create Your Own CHILLGITS
+                    </span>
                   </Link>
                 </div>
               )}
@@ -343,7 +404,7 @@ export default function ResponsiveMinimalisticGitHubDashboard({ initialUsername 
                                 animate={{ scale: 1 }}
                                 transition={{ duration: 0.5 }}
                               >
-                                {getRandomChillPercentage()}%
+                                {chillPercentage}%
                               </motion.span>
                               <span className="text-green-300">Chill</span>
                             </div>
@@ -359,7 +420,7 @@ export default function ResponsiveMinimalisticGitHubDashboard({ initialUsername 
                               animate={{ opacity: 1 }}
                               transition={{ delay: 0.2 }}
                             >
-                              {CHILL_MESSAGES[Math.floor(Math.random() * CHILL_MESSAGES.length)]}
+                              {chillMessage}
                             </motion.p>
                           </div>
                         </div>
