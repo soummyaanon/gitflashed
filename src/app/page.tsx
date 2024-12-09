@@ -12,18 +12,11 @@ function CountingNumber({ value }: { value: number }) {
   const [displayValue, setDisplayValue] = useState(0)
 
   useEffect(() => {
-    // First animate to 100
-    animate(0, 100, {
-      duration: 1,
-      onUpdate: (v) => setDisplayValue(Math.round(v)),
-      ease: "easeOut"
-    }).then(() => {
-      // Then animate down to actual value
-      animate(100, value, {
-        duration: 0.5,
-        onUpdate: (v) => setDisplayValue(Math.round(v)),
-        ease: "easeInOut"
-      })
+    // Smoother animation directly to the target value
+    animate(0, value, {
+      duration: 2,
+      ease: [0.34, 1.56, 0.64, 1], // Custom spring-like easing
+      onUpdate: (v) => setDisplayValue(Math.round(v))
     })
   }, [value])
 
@@ -85,21 +78,20 @@ export default function Home() {
           transition={{ duration: 0.5 }}
           className="fixed top-0 left-0 right-0 sm:top-8 sm:left-auto sm:right-8 z-50 p-3 sm:p-0"
         >
-          <div className="bg-black/40 backdrop-blur-xl rounded-2xl border border-green-500/20 
-                        shadow-lg hover:shadow-green-500/10 transition-all duration-300
-                        hover:border-green-500/30 overflow-hidden
+          <div className="bg-transparent backdrop-blur-[2px] rounded-2xl
+                        transition-all duration-300 hover:backdrop-blur-[4px]
                         w-full sm:w-auto">
             {/* Mobile Layout */}
             <div className="block sm:hidden p-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-green-400" />
-                  <h2 className="text-xl font-bold text-green-400 tracking-tight">
+                  <Users className="w-5 h-5 text-white/50" />
+                  <h2 className="text-xl font-bold text-white/80 tracking-tight">
                     <CountingNumber value={userCount} />
                   </h2>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-medium text-green-500/90">
+                  <p className="text-sm font-medium text-white/50">
                     Active Profiles
                   </p>
                 </div>
@@ -109,16 +101,16 @@ export default function Home() {
             {/* Desktop Layout */}
             <div className="hidden sm:flex flex-col items-center p-6 min-w-[280px] md:min-w-[320px]">
               <div className="flex items-center justify-center gap-3 mb-3">
-                <Users className="w-8 h-8 text-green-400" />
-                <h2 className="text-3xl md:text-4xl font-bold text-green-400 tracking-tight">
+                <Users className="w-8 h-8 text-white/50" />
+                <h2 className="text-3xl md:text-4xl font-bold text-white/80 tracking-tight">
                   <CountingNumber value={userCount} />
                 </h2>
               </div>
               <div className="text-center">
-                <p className="text-base md:text-lg text-green-500/90 font-medium">
-                  Active Profiles Generated
+                <p className="text-base md:text-lg text-white/60 font-medium">
+                  Generated ChillGits
                 </p>
-                <p className="text-sm md:text-base text-green-500/70 mt-1">
+                <p className="text-sm md:text-base text-white/40 mt-1">
                   Join the growing community
                 </p>
               </div>
