@@ -94,27 +94,42 @@ function downloadAsImage() {
   if (!element) return
 
   try {
+    document.body.style.cursor = 'wait'
+    
     html2canvas(element, {
       backgroundColor: '#1a1b1e',
-      scale: 2,
-      logging: true,
+      scale: 3,
+      logging: false,
       useCORS: true,
       allowTaint: true,
       onclone: (clonedDoc) => {
         const clonedElement = clonedDoc.getElementById('github-profile-card')
         if (clonedElement) {
           clonedElement.style.transform = 'none'
+          const images = clonedElement.getElementsByTagName('img')
+          return Promise.all(Array.from(images).map(img => {
+            if (img.complete) return Promise.resolve()
+            return new Promise(resolve => {
+              img.onload = resolve
+              img.onerror = resolve
+            })
+          }))
         }
       }
     }).then(canvas => {
       const image = canvas.toDataURL('image/png', 1.0)
       const link = document.createElement('a')
-      link.download = 'github-profile.png'
+      const timestamp = new Date().toISOString().split('T')[0]
+      link.download = `chillgits-dashboard-${timestamp}.png`
       link.href = image
       link.click()
+    }).finally(() => {
+      document.body.style.cursor = 'default'
     })
   } catch (err) {
     console.error('Error generating image:', err)
+    document.body.style.cursor = 'default'
+    alert('Failed to generate image. Please try again.')
   }
 }
 

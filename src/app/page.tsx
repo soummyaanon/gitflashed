@@ -47,9 +47,10 @@ export default function Home() {
               <Image 
                 src="/95c.png"
                 alt="Background pattern"
-                layout="fill"
-                objectFit="contain"
+                width={500}
+                height={500}
                 className="opacity-5 scale-50 md:scale-95"
+                style={{ objectFit: 'contain' }}
               />
             </div>
           </div>
