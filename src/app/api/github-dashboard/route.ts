@@ -9,7 +9,7 @@ let redis: Redis | null = null
 try {
   if (process.env.REDIS_URL && process.env.REDIS_TOKEN) {
     redis = new Redis({
-      url: `https://${process.env.REDIS_URL}`,
+      url: `https://${process.env.REDIS_URL}`, 
       token: process.env.REDIS_TOKEN
     })
   }

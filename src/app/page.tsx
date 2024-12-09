@@ -1,12 +1,55 @@
 "use client"
 
+import { useState, useEffect } from 'react'
 import ResponsiveMinimalisticGitHubDashboard from '@/components/GitHubDashboard'
 import { Footer } from '@/components/Footer'
-import { Github, Plus } from 'lucide-react'
+import { Github, Plus, Users } from 'lucide-react'
 import Image from 'next/image'
 import Head from 'next/head'
+import { motion, animate } from "framer-motion"
+
+function CountingNumber({ value }: { value: number }) {
+  const [displayValue, setDisplayValue] = useState(0)
+
+  useEffect(() => {
+    // First animate to 100
+    animate(0, 100, {
+      duration: 1,
+      onUpdate: (v) => setDisplayValue(Math.round(v)),
+      ease: "easeOut"
+    }).then(() => {
+      // Then animate down to actual value
+      animate(100, value, {
+        duration: 0.5,
+        onUpdate: (v) => setDisplayValue(Math.round(v)),
+        ease: "easeInOut"
+      })
+    })
+  }, [value])
+
+  return <span>{displayValue.toLocaleString()}</span>
+}
 
 export default function Home() {
+  const [userCount, setUserCount] = useState<number>(0)
+
+  useEffect(() => {
+    const fetchUserCount = async () => {
+      try {
+        const response = await fetch('/api/user-count')
+        const data = await response.json()
+        setUserCount(data.count)
+      } catch (error) {
+        console.error('Error fetching user count:', error)
+      }
+    }
+
+    fetchUserCount()
+    // Refresh count every minute
+    const interval = setInterval(fetchUserCount, 60000)
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <>
       <Head>
@@ -35,6 +78,29 @@ export default function Home() {
 
       <main className="min-h-screen bg-gradient-to-br from-gray-900 to-green-900 text-white relative flex flex-col">
         <h1 className="sr-only">ChillGits - GitHub Profile Visualization Tool</h1>
+        
+        {/* Enhanced User Count Display */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="absolute top-6 right-6 z-20"
+        >
+          <div className="bg-black/30 backdrop-blur-lg rounded-xl px-6 py-4 border border-green-500/20 shadow-lg hover:shadow-green-500/10 transition-all duration-300 group">
+            <div className="flex items-center gap-3">
+              <Users className="w-6 h-6 text-green-400 group-hover:text-green-300 transition-colors" />
+              <div>
+                <p className="text-2xl font-bold text-green-400 group-hover:text-green-300 transition-colors">
+                  <CountingNumber value={userCount} />
+                </p>
+                <p className="text-sm text-green-500/70">
+                  Developers Chilling
+                </p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
         <div className="absolute inset-0">
           <div className="flex flex-col md:flex-row justify-between items-center h-full px-4 md:px-12 lg:px-24 gap-8 md:gap-16 lg:gap-32">
             <div className="flex-1 opacity-10 flex justify-center w-full md:w-1/3">

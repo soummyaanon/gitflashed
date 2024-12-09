@@ -258,6 +258,11 @@ export default function ResponsiveMinimalisticGitHubDashboard({ initialUsername 
       const githubData = await githubResponse.json();
       setGithubData(githubData);
       
+      // Increment user count on successful fetch
+      await fetch('/api/user-count', {
+        method: 'POST',
+      })
+
       setChillPercentage(calculateChillPercentage(githubData))
       const { message, avatarUrl } = getChillMessage(calculateChillPercentage(githubData), githubData.user.login);
       setChillMessage(message)
