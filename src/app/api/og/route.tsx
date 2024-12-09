@@ -37,69 +37,100 @@ export async function GET(request: Request) {
             alignItems: 'center',
             justifyContent: 'center',
             backgroundColor: '#111827',
-            backgroundImage: 'linear-gradient(to bottom right, #111827, #065f46)',
+            backgroundImage: 'linear-gradient(135deg, #111827 0%, #065f46 100%)',
+            padding: '40px',
           }}
         >
+          {/* Background Pattern */}
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundImage: 'radial-gradient(circle at 25px 25px, rgba(255, 255, 255, 0.1) 2%, transparent 0%)',
+              backgroundSize: '50px 50px',
+            }}
+          />
+
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: 'rgba(0,0,0,0.4)',
-              padding: '40px 60px',
-              borderRadius: '20px',
-              border: '1px solid rgba(255,255,255,0.1)',
-              backdropFilter: 'blur(10px)',
+              backgroundColor: 'rgba(0, 0, 0, 0.6)',
+              padding: '60px',
+              borderRadius: '30px',
+              border: '2px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+            {/* User Avatar */}
             <img
               src={`https://github.com/${username}.png`}
               alt={username}
-              width="120"
-              height="120"
+              width="160"
+              height="160"
               style={{
-                borderRadius: '60px',
-                border: '2px solid rgba(255,255,255,0.2)',
-                marginBottom: '20px',
+                borderRadius: '80px',
+                border: '4px solid rgba(255, 255, 255, 0.2)',
+                marginBottom: '30px',
+                boxShadow: '0 8px 20px rgba(0, 0, 0, 0.3)',
               }}
             />
-            <h1
+
+            {/* Title */}
+            <div
               style={{
                 fontSize: '48px',
                 fontWeight: 'bold',
                 color: 'white',
-                marginBottom: '10px',
+                marginBottom: '16px',
                 textAlign: 'center',
+                textShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
               }}
             >
               {username}&apos;s Chill Score
-            </h1>
-            <p
+            </div>
+
+            {/* Subtitle */}
+            <div
               style={{
-                fontSize: '24px',
-                color: 'rgba(255,255,255,0.7)',
-                marginBottom: '20px',
+                fontSize: '28px',
+                color: 'rgba(255, 255, 255, 0.9)',
+                marginBottom: '30px',
                 textAlign: 'center',
+                textShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
               }}
             >
-              Are they a chill developer?
-            </p>
+              🧊 How chill is their code?
+            </div>
+
+            {/* Logo and Branding */}
             <div
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                gap: '20px',
+                gap: '12px',
+                marginTop: '20px',
               }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="https://chillgits.vercel.app/95c.png" width="40" height="40" alt="ChillGits" />
+              <img 
+                src="https://chillgits.vercel.app/95c.png" 
+                width="40" 
+                height="40" 
+                alt="ChillGits"
+                style={{
+                  filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))',
+                }}
+              />
               <span
                 style={{
                   fontSize: '24px',
-                  color: 'rgba(255,255,255,0.5)',
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
                 }}
               >
                 ChillGits
@@ -111,6 +142,10 @@ export async function GET(request: Request) {
       {
         width: 1200,
         height: 630,
+        headers: {
+          'Cache-Control': 'public, max-age=3600',
+          'Content-Type': 'image/png',
+        },
       }
     )
   } catch (e) {
