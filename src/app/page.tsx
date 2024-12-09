@@ -45,7 +45,6 @@ export default function Home() {
     }
 
     fetchUserCount()
-    // Refresh count every minute
     const interval = setInterval(fetchUserCount, 60000)
     return () => clearInterval(interval)
   }, [])
@@ -84,17 +83,43 @@ export default function Home() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="absolute top-6 right-6 z-20"
+          className="fixed top-0 left-0 right-0 sm:top-8 sm:left-auto sm:right-8 z-50 p-3 sm:p-0"
         >
-          <div className="bg-black/30 backdrop-blur-lg rounded-xl px-6 py-4 border border-green-500/20 shadow-lg hover:shadow-green-500/10 transition-all duration-300 group">
-            <div className="flex items-center gap-3">
-              <Users className="w-6 h-6 text-green-400 group-hover:text-green-300 transition-colors" />
-              <div>
-                <p className="text-2xl font-bold text-green-400 group-hover:text-green-300 transition-colors">
+          <div className="bg-black/40 backdrop-blur-xl rounded-2xl border border-green-500/20 
+                        shadow-lg hover:shadow-green-500/10 transition-all duration-300
+                        hover:border-green-500/30 overflow-hidden
+                        w-full sm:w-auto">
+            {/* Mobile Layout */}
+            <div className="block sm:hidden p-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Users className="w-5 h-5 text-green-400" />
+                  <h2 className="text-xl font-bold text-green-400 tracking-tight">
+                    <CountingNumber value={userCount} />
+                  </h2>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-medium text-green-500/90">
+                    Active Profiles
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Desktop Layout */}
+            <div className="hidden sm:flex flex-col items-center p-6 min-w-[280px] md:min-w-[320px]">
+              <div className="flex items-center justify-center gap-3 mb-3">
+                <Users className="w-8 h-8 text-green-400" />
+                <h2 className="text-3xl md:text-4xl font-bold text-green-400 tracking-tight">
                   <CountingNumber value={userCount} />
+                </h2>
+              </div>
+              <div className="text-center">
+                <p className="text-base md:text-lg text-green-500/90 font-medium">
+                  Active Profiles Generated
                 </p>
-                <p className="text-sm text-green-500/70">
-                  Developers Chilling
+                <p className="text-sm md:text-base text-green-500/70 mt-1">
+                  Join the growing community
                 </p>
               </div>
             </div>
