@@ -687,9 +687,7 @@ function ResponsiveDashboardSkeleton() {
         className={`p-4 sm:p-6 rounded-xl relative overflow-hidden ${glassStyle} ${neonBorderStyle} ${decorativeStyle}`}
       >
         <div className="space-y-4 relative z-10">
-          <Card 
-            className={`p-4 sm:p-6 rounded-xl ${glassStyle} ${neonBorderStyle}`}
-          >
+          <Card className={`p-4 sm:p-6 rounded-xl ${glassStyle} ${neonBorderStyle}`}>
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
               <Skeleton className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-green-700/30 animate-pulse" />
               <div className="space-y-3 text-center sm:text-left">
@@ -700,20 +698,18 @@ function ResponsiveDashboardSkeleton() {
             </div>
           </Card>
 
-          <Card 
-            className={`p-4 sm:p-6 rounded-xl ${glassStyle} ${neonBorderStyle}`}
-          >
+          <Card className={`p-4 sm:p-6 rounded-xl ${glassStyle} ${neonBorderStyle}`}>
             <Skeleton className="h-6 sm:h-8 w-36 sm:w-48 mb-4 sm:mb-6 bg-green-700/30 animate-pulse" />
             <Skeleton className="h-36 sm:h-48 w-full bg-green-700/30 animate-pulse" />
           </Card>
 
           <div className="absolute inset-0 flex items-center justify-center z-20">
             <div className="flex flex-col items-center gap-3 text-white">
-              <svg className="animate-spin h-8 w-8 text-green-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin h-10 w-10 text-green-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
               </svg>
-              <span className="text-lg font-medium text-green-400">AI is analyzing...</span>
+              <span className="text-lg font-semibold text-green-400">AI is analyzing...</span>
             </div>
           </div>
         </div>
