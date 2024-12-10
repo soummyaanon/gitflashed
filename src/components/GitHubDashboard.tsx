@@ -203,6 +203,7 @@ function getChillMessage(percentage: number, username: string): {
   message: string; 
   avatarUrl: string; 
 } {
+  // AI-generated messages based on chill percentage
   const messages = percentage >= 99 ? CHILL_MESSAGES.legendary : CHILL_MESSAGES.regular;
   const randomChoice = messages[Math.floor(Math.random() * messages.length)];
   
@@ -632,22 +633,24 @@ function AnimatedAppreciationCard({ content }: { content?: string }) {
     >
       <div className="relative z-10">
         <CardHeader className="p-0">
-          <CardTitle className="text-lg sm:text-xl mb-4 text-green-400 flex items-center gap-2">
-            <Image 
-              src="/95c.png" 
-              alt="Chill Guy" 
-              className="w-6 h-6 object-contain"
-              width={24}
-              height={24}
-              priority
-            />
-            Chill Guy Flatter
+          <CardTitle className="text-lg sm:text-xl mb-4 text-green-400 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Image 
+                src="/95c.png" 
+                alt="Chill Guy" 
+                className="w-6 h-6 object-contain"
+                width={24}
+                height={24}
+                priority
+              />
+              Chill Guy Flatter
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="text-sm sm:text-md text-gray-300 leading-relaxed">
-            <div className="relative p-2 sm:p-4">
-              {content?.split(' ').map((word, index) => (
+          {content ? (
+            <div className="text-sm sm:text-md text-gray-300 leading-relaxed p-2 sm:p-4">
+              {content.split(' ').map((word, index) => (
                 <motion.span
                   key={index}
                   className="inline-block mr-1"
@@ -657,9 +660,20 @@ function AnimatedAppreciationCard({ content }: { content?: string }) {
                 >
                   {word}
                 </motion.span>
-              )) || "Loading your profile..."}
+              ))}
             </div>
-          </div>
+          ) : (
+            <div className="min-h-[100px] flex flex-col items-center justify-center gap-3 p-8 bg-gradient-to-r from-transparent via-green-500/5 to-transparent animate-pulse">
+              <div className="flex items-center gap-2 text-green-400/90">
+                <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+                <span className="text-sm font-medium">AI is analyzing...</span>
+              </div>
+              <div className="text-xs text-green-400/70">Generating your personalized chill score</div>
+            </div>
+          )}
         </CardContent>
       </div>
     </MotionCard>
@@ -692,6 +706,16 @@ function ResponsiveDashboardSkeleton() {
             <Skeleton className="h-6 sm:h-8 w-36 sm:w-48 mb-4 sm:mb-6 bg-green-700/30 animate-pulse" />
             <Skeleton className="h-36 sm:h-48 w-full bg-green-700/30 animate-pulse" />
           </Card>
+
+          <div className="absolute inset-0 flex items-center justify-center z-20">
+            <div className="flex flex-col items-center gap-3 text-white">
+              <svg className="animate-spin h-8 w-8 text-green-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+              </svg>
+              <span className="text-lg font-medium text-green-400">AI is analyzing...</span>
+            </div>
+          </div>
         </div>
       </Card>
     </div>
