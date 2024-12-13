@@ -327,27 +327,27 @@ export default function ResponsiveMinimalisticGitHubDashboard({ initialUsername 
         throw new Error('Dashboard element not found');
       }
 
-      const canvas = await html2canvas(element, {
-        backgroundColor: '#1a1b1e',
-        scale: 2,
-        logging: false,
-        useCORS: true,
-        allowTaint: true,
-        onclone: (clonedDoc) => {
-          const clonedElement = clonedDoc.getElementById('github-profile-card');
-          if (clonedElement) {
-            clonedElement.style.transform = 'none';
-            const images = clonedElement.getElementsByTagName('img');
-            return Promise.all(Array.from(images).map(img => {
-              if (img.complete) return Promise.resolve();
-              return new Promise(resolve => {
-                img.onload = resolve;
-                img.onerror = resolve;
-              });
-            }));
-          }
-        }
-      });
+      // const canvas = await html2canvas(element, {
+      //   backgroundColor: '#1a1b1e',
+      //   scale: 2,
+      //   logging: false,
+      //   useCORS: true,
+      //   allowTaint: true,
+      //   onclone: (clonedDoc) => {
+      //     const clonedElement = clonedDoc.getElementById('github-profile-card');
+      //     if (clonedElement) {
+      //       clonedElement.style.transform = 'none';
+      //       const images = clonedElement.getElementsByTagName('img');
+      //       return Promise.all(Array.from(images).map(img => {
+      //         if (img.complete) return Promise.resolve();
+      //         return new Promise(resolve => {
+      //           img.onload = resolve;
+      //           img.onerror = resolve;
+      //         });
+      //       }));
+      //     }
+      //   }
+      // });
 
       // Social media share URLs
       const shareUrls = {
